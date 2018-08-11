@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>org.scijava</groupId>
+		<artifactId>pom-scijava</artifactId>
+		<version>21.0.0</version>
+		<relativePath />
+	</parent>
+
+	<groupId>net.trndy</groupId>
+	<artifactId>mastodon-selection-creator</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+
+	<name>Mastodon selection creator</name>
+	<description>A selection creator UI for Mastodon, as a Mastodon plugin.</description>
+	<url>https://github.com/TrNdy/mastodon-selection-creator</url>
+	<inceptionYear>2018</inceptionYear>
+	<organization>
+		<name>TrNdy</name>
+		<url>http://trndy.org</url>
+	</organization>
+	<licenses>
+		<license>
+			<name>BSD 2-Clause "Simplified" License</name>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+
+	<dependencies>
+
+		<!-- BDV deps -->
+
+		<dependency>
+			<groupId>sc.fiji</groupId>
+			<artifactId>bigdataviewer-core</artifactId>
+			<version>5.0.0</version>
+		</dependency>
+		<dependency>
+			<groupId>sc.fiji</groupId>
+			<artifactId>spim_data</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>sc.fiji</groupId>
+			<artifactId>bigdataviewer-vistools</artifactId>
+		</dependency>
+
+		<!-- Mastodon deps -->
+
+		<dependency>
+			<groupId>net.trackmate</groupId>
+			<artifactId>trackmate</artifactId>
+			<version>1.0.0-beta-6</version>
+		</dependency>
+		<dependency>
+			<groupId>org.mastodon</groupId>
+			<artifactId>mastodon-collection</artifactId>
+			<version>1.0.0-beta-14</version>
+		</dependency>
+		<dependency>
+			<groupId>org.mastodon</groupId>
+			<artifactId>mastodon-graph</artifactId>
+			<version>1.0.0-beta-11</version>
+		</dependency>
+
+		<!-- JFreeChart deps -->
+
+		<dependency>
+			<groupId>org.jfree</groupId>
+			<artifactId>jfreechart</artifactId>
+		</dependency>
+
+		<!-- ImgLib2 deps -->
+
+		<dependency>
+			<groupId>net.imglib2</groupId>
+			<artifactId>imglib2-algorithm-fft</artifactId>
+		</dependency>
+
+		<!-- ImageJ deps -->
+
+		<dependency>
+			<groupId>net.imagej</groupId>
+			<artifactId>imagej-ops</artifactId>
+		</dependency>
+
+		<!-- SciJava deps -->
+
+		<dependency>
+			<groupId>org.scijava</groupId>
+			<artifactId>scijava-plugins-commands</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.scijava</groupId>
+			<artifactId>ui-behaviour</artifactId>
+			<version>1.7.3</version>
+		</dependency>
+
+		<!-- Test dependencies -->
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.scijava</groupId>
+			<artifactId>scijava-ui-swing</artifactId>
+		</dependency>
+	</dependencies>
+
+	<mailingLists>
+		<mailingList>
+			<name>ImageJ Forum</name>
+			<archive>http://forum.imagej.net/</archive>
+		</mailingList>
+	</mailingLists>
+
+	<scm>
+		<connection>scm:git:git:github.com/TrNdy/mastodon-selection-creator</connection>
+		<developerConnection>scm:git:git@github.com:TrNdy/mastodon-selection-creator</developerConnection>
+		<tag>HEAD</tag>
+		<url>https://github.com/TrNdy/mastodon-selection-creator</url>
+	</scm>
+	<issueManagement>
+		<system>GitHub</system>
+		<url>https://github.com/TrNdy/mastodon-selection-creator/issues</url>
+	</issueManagement>
+	<ciManagement>
+		<system>Travis CI</system>
+		<url>https://travis-ci.org/TrNdy/mastodon-selection-creator</url>
+	</ciManagement>
+
+	<properties>
+		<package-name>org.trndy</package-name>
+		<enforcer.skip>true</enforcer.skip>
+		<license.licenseName>not licensed yet</license.licenseName>
+		<license.projectName>mastodon-tracking</license.projectName>
+		<license.organizationName>Mastodon authors</license.organizationName>
+		<license.copyrightOwners>Tobias Pietzsch, Jean-Yves Tinevez</license.copyrightOwners>
+
+		<!-- NB: Deploy releases to the ImageJ Maven repository. -->
+		<releaseProfiles>deploy-to-imagej</releaseProfiles>
+	</properties>
+
+	<developers>
+		<developer>
+			<id>tinevez</id>
+			<name>Jean-Yves Tinevez</name>
+			<email>jean-yves.tinevez@pasteur.fr</email>
+			<url>https://research.pasteur.fr/en/member/jean-yves-tinevez/</url>
+			<organization>Institut Pasteur</organization>
+			<organizationUrl>http://www.pasteur.fr/</organizationUrl>
+			<roles>
+				<role>developer</role>
+			</roles>
+		</developer>
+		<developer>
+			<id>tpietzsch</id>
+			<name>Tobias Pietzsch</name>
+			<email>pietzsch@mpi-cbg.de</email>
+			<url>http://imagej.net/User:Pietzsch</url>
+			<organization>MPI-CBG</organization>
+			<organizationUrl>http://www.mpi-cbg.de/</organizationUrl>
+			<roles>
+				<role>lead</role>
+				<role>developer</role>
+			</roles>
+		</developer>
+	</developers>
+
+	<contributors><contributor><name>grrrr</name></contributor></contributors>
+
+	<repositories>
+		<repository>
+			<id>imagej.public</id>
+			<url>http://maven.imagej.net/content/groups/public</url>
+		</repository>
+	</repositories>
+</project>
