@@ -1,5 +1,6 @@
 package org.mastodon.revised.ui.selection.creator.evaluation;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Deque;
@@ -254,6 +255,7 @@ public class SelectionEvaluator< V extends Vertex< E >, E extends Edge< V > > ex
 		return null;
 	}
 
+	@SuppressWarnings( "rawtypes" )
 	private Object callFunction( final String name, final Object b )
 	{
 		System.out.println( " - Calling function " + name + " on " + b ); // DEBUG
@@ -306,6 +308,51 @@ public class SelectionEvaluator< V extends Vertex< E >, E extends Edge< V > > ex
 				case "edgetagset":
 					return new EdgeTagSetVariable<>( tagSet, edgeTags, graph.edges(), idmap.edgeIdBimap() );
 				}
+			}
+			break;
+		}
+		case "morph":
+		{
+			if ( b instanceof List && ( ( List ) b ).size() > 1 )
+			{
+				final Object arg0 = ( ( List ) b ).get( 0 );
+				final Object arg1 = ( ( List ) b ).get( 1 );
+				final SelectionVariable selectionVariable;
+				final List< String > switches = new ArrayList<>();
+				if ( arg0 instanceof SelectionVariable )
+				{
+					selectionVariable = ( SelectionVariable ) arg0;
+					if (arg1 instanceof List)
+					{
+						@SuppressWarnings( "unchecked" )
+						final List<Variable> tokens = ( List< Variable > ) arg1;
+						for ( final Variable tk : tokens )
+							switches.add( tk.getToken() );
+					}
+					else if (arg1 instanceof Variable)
+						switches.add( ( ( Variable ) arg1 ).getToken() );
+					else
+						return null;
+				}
+				else if ( arg1 instanceof SelectionVariable )
+				{
+					selectionVariable = ( SelectionVariable ) arg1;
+					if ( arg0 instanceof List )
+					{
+						@SuppressWarnings( "unchecked" )
+						final List< Variable > tokens = ( List< Variable > ) arg0;
+						for ( final Variable tk : tokens )
+							switches.add( tk.getToken() );
+					}
+					else if ( arg0 instanceof Variable )
+						switches.add( ( ( Variable ) arg0 ).getToken() );
+					else
+						return null;
+				}
+				else
+					return null;
+
+
 			}
 			break;
 		}
