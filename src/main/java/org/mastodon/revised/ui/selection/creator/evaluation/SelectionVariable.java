@@ -1,0 +1,71 @@
+package org.mastodon.revised.ui.selection.creator.evaluation;
+
+import java.util.BitSet;
+
+import org.mastodon.graph.Edge;
+import org.mastodon.graph.GraphIdBimap;
+import org.mastodon.graph.ReadOnlyGraph;
+import org.mastodon.graph.Vertex;
+import org.mastodon.model.SelectionModel;
+
+/**
+ * We have to use 4 BitSets, because we want to track also the IDs of the
+ * non-selected object. It is not possible to assume that non-selected objects
+ * will map to cleared bits in the BitSet, for there might be unassigned ID
+ * values.
+ * 
+ * @author Jean-Yves Tinevez
+ *
+ */
+public class SelectionVariable
+{
+
+	private final BitSet selectedVertices;
+
+	private final BitSet selectedEdges;
+
+	SelectionVariable( final BitSet selectedVertices, final BitSet selectedEdges )
+	{
+		this.selectedVertices = selectedVertices;
+		this.selectedEdges = selectedEdges;
+	}
+
+	public static < V extends Vertex< E >, E extends Edge< V > > SelectionVariable from( final ReadOnlyGraph< V, E > graph, final GraphIdBimap< V, E > idmap, final SelectionModel< V, E > selectionModel )
+	{
+		// Vertices.
+		final BitSet sv = new BitSet();
+		for ( final V v : selectionModel.getSelectedVertices() )
+			sv.set( idmap.getVertexId( v ) );
+
+		// Edges.
+		final BitSet se = new BitSet();
+		for ( final E e : selectionModel.getSelectedEdges() )
+			se.set( idmap.getEdgeId( e ) );
+
+		return new SelectionVariable( sv, se );
+	}
+
+	public void inPlaceAdd( final SelectionVariable sv )
+	{
+		selectedVertices.or( sv.selectedVertices );
+		selectedEdges.or( sv.selectedEdges );
+	}
+
+	public void inPlaceSub( final SelectionVariable sv )
+	{
+		selectedVertices.andNot( sv.selectedVertices );
+		selectedEdges.andNot( sv.selectedEdges );
+	}
+
+	public void inPlaceAnd( final SelectionVariable sv )
+	{
+		selectedVertices.and( sv.selectedVertices );
+		selectedEdges.and( sv.selectedEdges );
+	}
+
+	@Override
+	public String toString()
+	{
+		return "Selection( " + selectedVertices.cardinality() + ", " + selectedEdges.cardinality() + " )";
+	}
+}
