@@ -7,6 +7,8 @@ import javax.swing.JFrame;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
+import org.mastodon.revised.ui.selection.creator.util.DataThresholdUI;
+
 public class DataThresholdUIExample
 {
 

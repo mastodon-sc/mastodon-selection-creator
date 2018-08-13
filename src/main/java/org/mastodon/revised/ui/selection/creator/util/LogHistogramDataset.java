@@ -1,4 +1,4 @@
-package org.mastodon.revised.ui.selection.util;
+package org.mastodon.revised.ui.selection.creator.util;
 
 import org.jfree.data.statistics.HistogramDataset;
 

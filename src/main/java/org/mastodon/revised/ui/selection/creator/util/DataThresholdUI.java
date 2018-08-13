@@ -1,4 +1,4 @@
-package org.mastodon.revised.ui.selection.util;
+package org.mastodon.revised.ui.selection.creator.util;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -34,6 +34,7 @@ import org.jfree.chart.plot.IntervalMarker;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.ui.Layer;
 import org.jfree.data.Range;
+import org.mastodon.revised.ui.selection.creator.FilterItem;
 import org.mastodon.util.Listeners;
 import org.mastodon.util.Listeners.List;
 
@@ -59,7 +60,7 @@ import org.mastodon.util.Listeners.List;
  * @author Jean-Yves Tinevez
  *
  */
-public class DataThresholdUI
+public class DataThresholdUI implements FilterItem
 {
 
 	private static final NumberFormat FORMAT = new DecimalFormat( "0.0" );
@@ -83,11 +84,6 @@ public class DataThresholdUI
 	private final ChartPanel chartPanel;
 
 	private final Listeners.List< UpdateListener > listeners = new Listeners.List<>();
-
-	public static interface UpdateListener
-	{
-		public void filterChanged();
-	}
 
 	public static class Threshold implements DoublePredicate
 	{
@@ -251,6 +247,7 @@ public class DataThresholdUI
 	 * 
 	 * @return the JPanel.
 	 */
+	@Override
 	public JPanel getPanel()
 	{
 		return panel;

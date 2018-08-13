@@ -1,4 +1,4 @@
-package org.mastodon.revised.ui.selection;
+package org.mastodon.revised.ui.selection.creator.components;
 
 import java.awt.Color;
 import java.awt.Dimension;
