@@ -96,6 +96,15 @@
 			<artifactId>ui-behaviour</artifactId>
 			<version>1.7.3</version>
 		</dependency>
+		<dependency>
+			<groupId>org.scijava</groupId>
+			<artifactId>parsington</artifactId>
+			<version>1.0.3</version>
+		</dependency>
+		<dependency>
+			<groupId>org.scijava</groupId>
+			<artifactId>scijava-ui-swing</artifactId>
+		</dependency>
 
 		<!-- Test dependencies -->
 		<dependency>
@@ -104,10 +113,6 @@
 			<scope>test</scope>
 		</dependency>
 
-		<dependency>
-			<groupId>org.scijava</groupId>
-			<artifactId>scijava-ui-swing</artifactId>
-		</dependency>
 	</dependencies>
 
 	<mailingLists>
