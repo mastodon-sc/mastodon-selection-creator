@@ -45,27 +45,45 @@ public class SelectionVariable
 		return new SelectionVariable( sv, se );
 	}
 
-	public void inPlaceAdd( final SelectionVariable sv )
+	public SelectionVariable inPlaceAdd( final SelectionVariable sv )
 	{
 		selectedVertices.or( sv.selectedVertices );
 		selectedEdges.or( sv.selectedEdges );
+		return this;
 	}
 
-	public void inPlaceSub( final SelectionVariable sv )
+	public SelectionVariable inPlaceSub( final SelectionVariable sv )
 	{
 		selectedVertices.andNot( sv.selectedVertices );
 		selectedEdges.andNot( sv.selectedEdges );
+		return this;
 	}
 
-	public void inPlaceAnd( final SelectionVariable sv )
+	public SelectionVariable inPlaceAnd( final SelectionVariable sv )
 	{
 		selectedVertices.and( sv.selectedVertices );
 		selectedEdges.and( sv.selectedEdges );
+		return this;
 	}
 
 	@Override
 	public String toString()
 	{
 		return "Selection( " + selectedVertices.cardinality() + ", " + selectedEdges.cardinality() + " )";
+	}
+
+	public SelectionVariable copy()
+	{
+		return new SelectionVariable( ( BitSet ) selectedVertices.clone(), ( BitSet ) selectedEdges.clone() );
+	}
+
+	public void clearVertices()
+	{
+		selectedVertices.clear();
+	}
+
+	public void clearEdges()
+	{
+		selectedEdges.clear();
 	}
 }
