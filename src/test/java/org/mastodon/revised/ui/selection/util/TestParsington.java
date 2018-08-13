@@ -29,7 +29,7 @@ public class TestParsington
 	public static void main( final String[] args ) throws IOException, SpimDataException
 	{
 		final Context context = new Context();
-		final MamutProject project = new MamutProjectIO().load( "../TrackMate3/samples/Mastodon" );
+		final MamutProject project = new MamutProjectIO().load( "../TrackMate3/samples/mamutproject" );
 		final WindowManager windowManager = new WindowManager( context );
 		windowManager.getProjectManager().open( project );
 		final Model model = windowManager.getAppModel().getModel();
@@ -43,7 +43,7 @@ public class TestParsington
 		System.out.println( tagSetModel.getTagSetStructure() ); // DEBUG
 
 		final SyntaxTree tree = new ExpressionParser().parseTree(
-				"extend( "
+				"morph( "
 				+ "vertexFeature(SpotPosition, X) > 3. "
 				+ "& "
 						+ "tagSet('Reviewed by') == JY"
