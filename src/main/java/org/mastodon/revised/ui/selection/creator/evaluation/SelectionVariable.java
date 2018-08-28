@@ -4,7 +4,6 @@ import java.util.BitSet;
 
 import org.mastodon.graph.Edge;
 import org.mastodon.graph.GraphIdBimap;
-import org.mastodon.graph.ReadOnlyGraph;
 import org.mastodon.graph.Vertex;
 import org.mastodon.model.SelectionModel;
 
@@ -38,7 +37,16 @@ public class SelectionVariable
 		this.selectedEdges = selectedEdges;
 	}
 
-	public static < V extends Vertex< E >, E extends Edge< V > > SelectionVariable from( final ReadOnlyGraph< V, E > graph, final GraphIdBimap< V, E > idmap, final SelectionModel< V, E > selectionModel )
+	/**
+	 * Creates a {@link SelectionVariable} from a {@link SelectionModel}.
+	 *
+	 * @param selectionModel
+	 *            the selection model.
+	 * @param idmap
+	 *            the mapping from graph objects to their id.
+	 * @return a new {@link SelectionVariable}.
+	 */
+	public static < V extends Vertex< E >, E extends Edge< V > > SelectionVariable fromSelectionModel( final SelectionModel< V, E > selectionModel, final GraphIdBimap< V, E > idmap )
 	{
 		// Vertices.
 		final BitSet sv = new BitSet();
