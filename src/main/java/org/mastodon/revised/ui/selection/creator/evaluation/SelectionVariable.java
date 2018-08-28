@@ -13,7 +13,7 @@ import org.mastodon.model.SelectionModel;
  * non-selected object. It is not possible to assume that non-selected objects
  * will map to cleared bits in the BitSet, for there might be unassigned ID
  * values.
- * 
+ *
  * @author Jean-Yves Tinevez
  *
  */
@@ -23,6 +23,14 @@ public class SelectionVariable
 	private final BitSet selectedVertices;
 
 	private final BitSet selectedEdges;
+
+	/**
+	 * Empty selection variable.
+	 */
+	SelectionVariable()
+	{
+		this( new BitSet(), new BitSet() );
+	}
 
 	SelectionVariable( final BitSet selectedVertices, final BitSet selectedEdges )
 	{

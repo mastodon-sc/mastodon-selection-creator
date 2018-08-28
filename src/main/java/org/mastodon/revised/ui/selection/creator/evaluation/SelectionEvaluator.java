@@ -2,7 +2,6 @@ package org.mastodon.revised.ui.selection.creator.evaluation;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.BitSet;
 import java.util.Deque;
 import java.util.List;
 
@@ -121,7 +120,7 @@ public class SelectionEvaluator< V extends Vertex< E >, E extends Edge< V > > ex
 			final TagSetVariable tsv = ( TagSetVariable ) a;
 			final Tag tag = getTagFromName( ( ( Variable ) b ).getToken(), tsv.getTagSet() );
 			if ( null == tag )
-				return new SelectionVariable( new BitSet(), new BitSet() );
+				return new SelectionVariable();
 			return tsv.notEqual( tag );
 		}
 		else if ( b instanceof TagSetVariable && a instanceof Variable )
@@ -129,7 +128,7 @@ public class SelectionEvaluator< V extends Vertex< E >, E extends Edge< V > > ex
 			final TagSetVariable tsv = ( TagSetVariable ) b;
 			final Tag tag = getTagFromName( ( ( Variable ) a ).getToken(), tsv.getTagSet() );
 			if ( null == tag )
-				return new SelectionVariable( new BitSet(), new BitSet() );
+				return new SelectionVariable();
 			return tsv.notEqual( tag );
 		}
 		return null;
@@ -146,7 +145,7 @@ public class SelectionEvaluator< V extends Vertex< E >, E extends Edge< V > > ex
 			final TagSetVariable tsv = ( TagSetVariable ) a;
 			final Tag tag = getTagFromName( ( ( Variable ) b ).getToken(), tsv.getTagSet() );
 			if ( null == tag )
-				return new SelectionVariable( new BitSet(), new BitSet() );
+				return new SelectionVariable();
 			return tsv.equal( tag );
 		}
 		else if ( b instanceof TagSetVariable && a instanceof Variable )
@@ -154,7 +153,7 @@ public class SelectionEvaluator< V extends Vertex< E >, E extends Edge< V > > ex
 			final TagSetVariable tsv = ( TagSetVariable ) b;
 			final Tag tag = getTagFromName( ( ( Variable ) a ).getToken(), tsv.getTagSet() );
 			if ( null == tag )
-				return new SelectionVariable( new BitSet(), new BitSet() );
+				return new SelectionVariable();
 			return tsv.equal( tag );
 		}
 		return null;
