@@ -41,8 +41,9 @@ public class FeatureFilterItem< O > extends JPanel implements FilterItem
 
 	private final FeatureModel featureModel;
 
-	private final Class< ? > objectClass;
+	private final Class< O > objectClass;
 
+	@SuppressWarnings( "unchecked" )
 	public FeatureFilterItem( final FeatureModel featureModel, final Collection< O > objects, final Class< O > objectClass )
 	{
 		this.featureModel = featureModel;
@@ -77,19 +78,18 @@ public class FeatureFilterItem< O > extends JPanel implements FilterItem
 		gbc_panelHistogram.gridx = 0;
 		gbc_panelHistogram.gridy = 1;
 		add( panelHistogram, gbc_panelHistogram );
-		
+
 		selector.listeners.add( (fk, pk) -> {
 			new Thread( () -> {
 				final double[] data;
-				final Feature< ?, ? > feature = featureModel.getFeature( fk );
+				final Feature< O, ? > feature = ( Feature< O, ? > ) featureModel.getFeature( fk );
 				if ( null == feature )
 				{
 					data = new double[] {};
 				}
 				else
 				{
-					@SuppressWarnings( "unchecked" )
-					final FeatureProjection< O > projection = ( FeatureProjection< O > ) feature.getProjections().get( pk );
+					final FeatureProjection< O > projection = feature.getProjections().get( pk );
 					if ( null == projection )
 					{
 						data = new double[] {};
@@ -250,7 +250,7 @@ public class FeatureFilterItem< O > extends JPanel implements FilterItem
 	 *            the feature set.
 	 * @return the keys of the feature set.
 	 */
-	private static Collection< String > collectKeys( final Set< Feature< ?, ? > > featureSet )
+	private static < P > Collection< String > collectKeys( final Set< Feature< P, ? > > featureSet )
 	{
 		if ( featureSet == null )
 			return Collections.emptyList();
