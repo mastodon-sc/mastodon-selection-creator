@@ -3,6 +3,7 @@ package org.mastodon.revised.ui.selection.creator.evaluation;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
 import org.mastodon.graph.Edge;
@@ -13,16 +14,16 @@ import org.mastodon.graph.Vertex;
 public class SelectionMorpher< V extends Vertex< E >, E extends Edge< V > >
 {
 
-	private ReadOnlyGraph< V, E > graph;
+	private final ReadOnlyGraph< V, E > graph;
 
-	private GraphIdBimap< V, E > idmap;
+	private final GraphIdBimap< V, E > idmap;
 
 	public static enum Morpher
 	{
 		/**
-		 * Includes the vertices of the source selection in the target selection. When
-		 * this morpher is not present, the selected vertices are removed from the
-		 * target selection.
+		 * Includes the vertices of the source selection in the target
+		 * selection. When this morpher is not present, the selected vertices
+		 * are removed from the target selection.
 		 */
 		TO_VERTEX,
 		/**
@@ -34,9 +35,9 @@ public class SelectionMorpher< V extends Vertex< E >, E extends Edge< V > >
 		 */
 		OUTGOING_EDGES,
 		/**
-		 * Includes the edges of the source selection in the target selection. When this
-		 * morpher is not present, the selected edges are removed from the target
-		 * selection.
+		 * Includes the edges of the source selection in the target selection.
+		 * When this morpher is not present, the selected edges are removed from
+		 * the target selection.
 		 */
 		TO_EDGE,
 		/**
@@ -53,7 +54,6 @@ public class SelectionMorpher< V extends Vertex< E >, E extends Edge< V > >
 		WHOLE_TRACK;
 
 	}
-
 
 	public SelectionMorpher( final ReadOnlyGraph< V, E > graph, final GraphIdBimap< V, E > idmap )
 	{
@@ -93,17 +93,69 @@ public class SelectionMorpher< V extends Vertex< E >, E extends Edge< V > >
 		return svs.stream().reduce( ( t, u ) -> t.inPlaceAdd( u ) ).get();
 	}
 
-	private SelectionVariable incomingEdges( final SelectionVariable selection )
+	private SelectionVariable targetVertex( final SelectionVariable selection )
 	{
-		final SelectionVariable sv = new SelectionVariable( new BitSet(), new BitSet() );
-		return null;
+		final V ref = idmap.vertexIdBimap().createRef();
+		final BitSet targetVertices = new BitSet();
+		final Iterator< E > it = selection.edgeIterator( idmap.edgeIdBimap() );
+		while(it.hasNext())
+			targetVertices.set( idmap.getVertexId( it.next().getTarget( ref ) ) );
+
+		idmap.vertexIdBimap().releaseRef( ref );
+		return new SelectionVariable( targetVertices, new BitSet() );
 	}
 
-	private SelectionVariable toVertex( final SelectionVariable sv )
+	private SelectionVariable sourceVertex( final SelectionVariable selection )
 	{
-		final SelectionVariable copy = sv.copy();
+		final V ref = idmap.vertexIdBimap().createRef();
+		final BitSet sourceVertices = new BitSet();
+		final Iterator< E > it = selection.edgeIterator( idmap.edgeIdBimap() );
+		while(it.hasNext())
+			sourceVertices.set( idmap.getVertexId( it.next().getSource( ref ) ) );
+
+		idmap.vertexIdBimap().releaseRef( ref );
+		return new SelectionVariable( sourceVertices, new BitSet() );
+	}
+
+	private SelectionVariable outgoingEdges( final SelectionVariable selection )
+	{
+		final BitSet outgoingEdgeIds = new BitSet();
+		final Iterator< V > it = selection.vertexIterator( idmap.vertexIdBimap() );
+		while ( it.hasNext() )
+		{
+			final V v = it.next();
+			for ( final E e : v.outgoingEdges() )
+				outgoingEdgeIds.set( idmap.getEdgeId( e ) );
+		}
+		return new SelectionVariable( new BitSet(), outgoingEdgeIds );
+	}
+
+	private SelectionVariable incomingEdges( final SelectionVariable selection )
+	{
+		final BitSet incomingEdgeIds = new BitSet();
+		final Iterator< V > it = selection.vertexIterator( idmap.vertexIdBimap() );
+		while ( it.hasNext() )
+		{
+			final V v = it.next();
+			for ( final E e : v.incomingEdges() )
+				incomingEdgeIds.set( idmap.getEdgeId( e ) );
+		}
+		return new SelectionVariable( new BitSet(), incomingEdgeIds );
+	}
+
+	private SelectionVariable toVertex( final SelectionVariable selection )
+	{
+		final SelectionVariable copy = selection.copy();
 		copy.clearEdges();
 		return copy;
 	}
+
+	private SelectionVariable toEdge( final SelectionVariable selection )
+	{
+		final SelectionVariable copy = selection.copy();
+		copy.clearVertices();
+		return copy;
+	}
+
 
 }
