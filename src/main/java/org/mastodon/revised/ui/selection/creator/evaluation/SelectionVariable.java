@@ -6,25 +6,20 @@ import java.util.Iterator;
 import org.mastodon.RefPool;
 import org.mastodon.graph.Edge;
 import org.mastodon.graph.GraphIdBimap;
+import org.mastodon.graph.ReadOnlyGraph;
 import org.mastodon.graph.Vertex;
 import org.mastodon.model.SelectionModel;
 import org.mastodon.revised.ui.selection.creator.evaluation.util.BitSetIterator;
 
 /**
- * We have to use 4 BitSets, because we want to track also the IDs of the
- * non-selected object. It is not possible to assume that non-selected objects
- * will map to cleared bits in the BitSet, for there might be unassigned ID
- * values.
- *
  * @author Jean-Yves Tinevez
- *
  */
 public class SelectionVariable
 {
 
-	private final BitSet selectedVertices;
+	final BitSet selectedVertices;
 
-	private final BitSet selectedEdges;
+	final BitSet selectedEdges;
 
 	/**
 	 * Empty selection variable.
@@ -62,6 +57,27 @@ public class SelectionVariable
 			se.set( idmap.getEdgeId( e ) );
 
 		return new SelectionVariable( sv, se );
+	}
+
+	/**
+	 * Creates a {@link SelectionVariable} containing all the vertices and all
+	 * the edges of the specified graph.
+	 *
+	 * @param graph
+	 *            the graph.
+	 * @param idmap
+	 *            the mapping from graph objects to their id.
+	 * @return a new {@link SelectionVariable}.
+	 */
+	public static < V extends Vertex< E >, E extends Edge< V > > SelectionVariable fromGraph( final ReadOnlyGraph< V, E > graph, final GraphIdBimap< V, E > idmap )
+	{
+		final BitSet vs = new BitSet();
+		final BitSet es = new BitSet();
+		for ( final V v : graph.vertices() )
+			vs.set( idmap.getVertexId( v ) );
+		for ( final E e : graph.edges() )
+			es.set( idmap.getEdgeId( e ) );
+		return new SelectionVariable( vs, es );
 	}
 
 	public SelectionVariable inPlaceAdd( final SelectionVariable sv )
