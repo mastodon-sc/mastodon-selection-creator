@@ -46,34 +46,46 @@ public class SelectionMorpher< V extends Vertex< E >, E extends Edge< V > >
 		 * selection. When this morpher is not present, the selected vertices
 		 * are removed from the target selection.
 		 */
-		TO_VERTEX,
+		TO_VERTEX( "toVertex" ),
 		/**
 		 * Includes the incoming edges of the selected vertices.
 		 */
-		INCOMING_EDGES,
+		INCOMING_EDGES( "incomingEdges" ),
 		/**
 		 * Includes the outgoing edges of the selected vertices.
 		 */
-		OUTGOING_EDGES,
+		OUTGOING_EDGES( "outgoingEdges" ),
 		/**
 		 * Includes the edges of the source selection in the target selection.
 		 * When this morpher is not present, the selected edges are removed from
 		 * the target selection.
 		 */
-		TO_EDGE,
+		TO_EDGE( "toEdge" ),
 		/**
 		 * Include the source vertices of the selected edges.
 		 */
-		SOURCE_VERTEX,
+		SOURCE_VERTEX( "sourceVertex" ),
 		/**
 		 * Include the target vertices of the selected edges.
 		 */
-		TARGET_VERTEX,
+		TARGET_VERTEX( "targetVertex" ),
 		/**
 		 * Include the whole track of selected vertices and edges.
 		 */
-		WHOLE_TRACK;
+		WHOLE_TRACK( "wholeTrack" );
 
+		private final String label;
+
+		private Morpher( final String label )
+		{
+			this.label = label;
+		}
+
+		@Override
+		public String toString()
+		{
+			return label;
+		}
 	}
 
 	/**
