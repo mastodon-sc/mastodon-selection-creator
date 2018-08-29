@@ -179,4 +179,30 @@ public class SelectionVariable
 			}
 		};
 	}
+
+	public < V > Iterable< V > vertices( final RefPool< V > pool )
+	{
+		return new Iterable< V >()
+		{
+
+			@Override
+			public Iterator< V > iterator()
+			{
+				return vertexIterator( pool );
+			}
+		};
+	}
+
+	public < E > Iterable< E > edges( final RefPool< E > pool )
+	{
+		return new Iterable< E >()
+		{
+
+			@Override
+			public Iterator< E > iterator()
+			{
+				return edgeIterator( pool );
+			}
+		};
+	}
 }
