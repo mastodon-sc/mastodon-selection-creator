@@ -3,18 +3,24 @@ package org.mastodon.revised.ui.selection.creator.evaluation;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Deque;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 import org.mastodon.graph.Edge;
 import org.mastodon.graph.GraphIdBimap;
 import org.mastodon.graph.ReadOnlyGraph;
 import org.mastodon.graph.Vertex;
 import org.mastodon.model.SelectionModel;
+import org.mastodon.revised.model.feature.Feature;
 import org.mastodon.revised.model.feature.FeatureModel;
 import org.mastodon.revised.model.tag.ObjTagMap;
 import org.mastodon.revised.model.tag.TagSetModel;
 import org.mastodon.revised.model.tag.TagSetStructure.Tag;
 import org.mastodon.revised.model.tag.TagSetStructure.TagSet;
+import org.mastodon.revised.ui.selection.creator.evaluation.SelectionMorpher.Morpher;
 import org.scijava.parse.Function;
 import org.scijava.parse.Operator;
 import org.scijava.parse.Operators;
@@ -38,6 +44,10 @@ public class SelectionEvaluator< V extends Vertex< E >, E extends Edge< V > > ex
 
 	private final TagSetModel< V, E > tagSetModel;
 
+	private final Map< String, Morpher > morpherMap = new HashMap<>();
+
+	private String errorMessage;
+
 	public SelectionEvaluator( final ReadOnlyGraph< V, E > graph, final GraphIdBimap< V, E > idmap, final TagSetModel< V, E > tagSetModel, final FeatureModel featureModel, final SelectionModel< V, E > selectionModel )
 	{
 		this.graph = graph;
@@ -46,14 +56,14 @@ public class SelectionEvaluator< V extends Vertex< E >, E extends Edge< V > > ex
 		this.featureModel = featureModel;
 		this.selectionModel = selectionModel;
 		this.defaultEvaluator = new DefaultEvaluator();
+		for ( final Morpher morpher : SelectionMorpher.Morpher.values() )
+			morpherMap.put( morpher.toString(), morpher );
 	}
 
 	@Override
 	public Object execute( final Operator op, final Deque< Object > stack )
 	{
-		System.out.println( "\nGot:" ); // DEBUG
-		System.out.println( op ); // DEBUG
-		System.out.println( stack ); // DEBUG
+		errorMessage = null;
 
 		// Pop the arguments.
 		final int arity = op.getArity();
@@ -76,7 +86,7 @@ public class SelectionEvaluator< V extends Vertex< E >, E extends Edge< V > > ex
 			return neg( a );
 		if ( op == Operators.NOT )
 			return not( a );
-		if ( op == Operators.ADD || op == Operators.LOGICAL_OR )
+		if ( op == Operators.ADD || op == Operators.BITWISE_OR )
 			return add( a, b );
 		if ( op == Operators.SUB )
 			return sub( a, b );
@@ -96,6 +106,7 @@ public class SelectionEvaluator< V extends Vertex< E >, E extends Edge< V > > ex
 			return and( a, b );
 
 		// Unknown operator.
+		errorMessage = "Unknown operator: " + op;
 		return null;
 	}
 
@@ -106,6 +117,8 @@ public class SelectionEvaluator< V extends Vertex< E >, E extends Edge< V > > ex
 			( ( SelectionVariable ) a ).inPlaceAnd( ( SelectionVariable ) b );
 			return a;
 		}
+
+		errorMessage = "Cannot apply the 'and' operator to " + a.getClass().getSimpleName() + " and " + b.getClass().getSimpleName() + ".";
 		return null;
 	}
 
@@ -131,6 +144,8 @@ public class SelectionEvaluator< V extends Vertex< E >, E extends Edge< V > > ex
 				return new SelectionVariable();
 			return tsv.notEqual( tag );
 		}
+
+		errorMessage = "Cannot apply the 'not equal to' operator to " + a.getClass().getSimpleName() + " and " + b.getClass().getSimpleName() + ".";
 		return null;
 	}
 
@@ -140,22 +155,25 @@ public class SelectionEvaluator< V extends Vertex< E >, E extends Edge< V > > ex
 			return ( ( FeatureVariable< ? > ) a ).equal( ( ( Number ) b ).doubleValue() );
 		else if ( a instanceof Number && b instanceof FeatureVariable )
 			return ( ( FeatureVariable< ? > ) b ).equal( ( ( Number ) a ).doubleValue() );
-		else if ( a instanceof TagSetVariable && b instanceof Variable )
+		else if ( a instanceof TagSetVariable || b instanceof TagSetVariable )
 		{
-			final TagSetVariable tsv = ( TagSetVariable ) a;
-			final Tag tag = getTagFromName( ( ( Variable ) b ).getToken(), tsv.getTagSet() );
-			if ( null == tag )
-				return new SelectionVariable();
-			return tsv.equal( tag );
+
+			final TagSetVariable tsv;
+			final Object param;
+			if ( a instanceof TagSetVariable )
+			{
+				tsv = ( TagSetVariable ) a;
+				param = b;
+			}
+			else
+			{
+				tsv = ( TagSetVariable ) b;
+				param = a;
+			}
+			return equalTag( tsv, param );
 		}
-		else if ( b instanceof TagSetVariable && a instanceof Variable )
-		{
-			final TagSetVariable tsv = ( TagSetVariable ) b;
-			final Tag tag = getTagFromName( ( ( Variable ) a ).getToken(), tsv.getTagSet() );
-			if ( null == tag )
-				return new SelectionVariable();
-			return tsv.equal( tag );
-		}
+
+		errorMessage = "Cannot apply the 'equal to' operator to " + a.getClass().getSimpleName() + " and " + b.getClass().getSimpleName() + ".";
 		return null;
 	}
 
@@ -165,6 +183,8 @@ public class SelectionEvaluator< V extends Vertex< E >, E extends Edge< V > > ex
 			return ( ( FeatureVariable< ? > ) a ).greaterThanOrEqual( ( ( Number ) b ).doubleValue() );
 		else if ( a instanceof Number && b instanceof FeatureVariable )
 			return ( ( FeatureVariable< ? > ) b ).lessThanOrEqual( ( ( Number ) a ).doubleValue() );
+
+		errorMessage = "Cannot apply the 'greater than or equal to' operator to " + a.getClass().getSimpleName() + " and " + b.getClass().getSimpleName() + ".";
 		return null;
 	}
 
@@ -174,6 +194,8 @@ public class SelectionEvaluator< V extends Vertex< E >, E extends Edge< V > > ex
 			return ( ( FeatureVariable< ? > ) a ).lessThanOrEqual( ( ( Number ) b ).doubleValue() );
 		else if ( a instanceof Number && b instanceof FeatureVariable )
 			return ( ( FeatureVariable< ? > ) b ).greaterThanOrEqual( ( ( Number ) a ).doubleValue() );
+
+		errorMessage = "Cannot apply the 'less than or equal to' operator to " + a.getClass().getSimpleName() + " and " + b.getClass().getSimpleName() + ".";
 		return null;
 	}
 
@@ -183,6 +205,8 @@ public class SelectionEvaluator< V extends Vertex< E >, E extends Edge< V > > ex
 			return ( ( FeatureVariable< ? > ) a ).greaterThan( ( ( Number ) b ).doubleValue() );
 		else if ( a instanceof Number && b instanceof FeatureVariable )
 			return ( ( FeatureVariable< ? > ) b ).lessThan( ( ( Number ) a ).doubleValue() );
+
+		errorMessage = "Cannot apply the 'greater than' operator to " + a.getClass().getSimpleName() + " and " + b.getClass().getSimpleName() + ".";
 		return null;
 	}
 
@@ -192,6 +216,8 @@ public class SelectionEvaluator< V extends Vertex< E >, E extends Edge< V > > ex
 			return ( ( FeatureVariable< ? > ) a ).lessThan( ( ( Number ) b ).doubleValue() );
 		else if ( a instanceof Number && b instanceof FeatureVariable )
 			return ( ( FeatureVariable< ? > ) b ).greaterThan( ( ( Number ) a ).doubleValue() );
+
+		errorMessage = "Cannot apply the 'less than' operator to " + a.getClass().getSimpleName() + " and " + b.getClass().getSimpleName() + ".";
 		return null;
 	}
 
@@ -199,6 +225,8 @@ public class SelectionEvaluator< V extends Vertex< E >, E extends Edge< V > > ex
 	{
 		if ( a instanceof TagSetVariable )
 			return ( ( TagSetVariable ) a ).unset();
+
+		errorMessage = "Cannot apply the 'not' operator to " + a.getClass() + ".";
 		return null;
 	}
 
@@ -209,7 +237,16 @@ public class SelectionEvaluator< V extends Vertex< E >, E extends Edge< V > > ex
 			( ( SelectionVariable ) a ).inPlaceSub( ( SelectionVariable ) b );
 			return a;
 		}
-		return defaultEvaluator.sub( a, b );
+
+		final Object val = defaultEvaluator.add( a, b );
+		if ( val == null )
+		{
+			errorMessage = "Improper use of the 'sub' operator, not defined for "
+					+ a.getClass().getSimpleName() + " and " + b.getClass().getSimpleName() + ". "
+					+ "Use brackets to clarify operator priority.";
+			return null;
+		}
+		return val;
 	}
 
 	private Object add( final Object a, final Object b )
@@ -219,7 +256,15 @@ public class SelectionEvaluator< V extends Vertex< E >, E extends Edge< V > > ex
 			( ( SelectionVariable ) a ).inPlaceAdd( ( SelectionVariable ) b );
 			return a;
 		}
-		return defaultEvaluator.add( a, b );
+		final Object val = defaultEvaluator.add( a, b );
+		if ( val == null )
+		{
+			errorMessage = "Improper use of the 'add' operator, not defined for "
+					+ a.getClass().getSimpleName() + " and " + b.getClass().getSimpleName() + ". "
+					+ "Use brackets to clarify operator priority.";
+			return null;
+		}
+		return val;
 	}
 
 	private Object neg( final Object a )
@@ -241,7 +286,6 @@ public class SelectionEvaluator< V extends Vertex< E >, E extends Edge< V > > ex
 
 	private Object function( final Object a, final Object b )
 	{
-		System.out.println( "Function with parameters " + a + " and " + b ); // DEBUG
 		if ( Tokens.isVariable( a ) )
 		{
 			final String name = ( ( Variable ) a ).getToken();
@@ -251,32 +295,19 @@ public class SelectionEvaluator< V extends Vertex< E >, E extends Edge< V > > ex
 		}
 
 		// NB: Unknown function type.
+		errorMessage = "Do not know how to handle " + a + " and " + b + ".";
 		return null;
 	}
 
 	@SuppressWarnings( "rawtypes" )
 	private Object callFunction( final String name, final Object b )
 	{
-		System.out.println( " - Calling function " + name + " on " + b ); // DEBUG
-		switch(name.toLowerCase().trim())
+		switch ( name.toLowerCase().trim() )
 		{
 		case "vertexfeature":
 		case "edgefeature":
 		{
-			if ( b instanceof List )
-			{
-				@SuppressWarnings( "unchecked" )
-				final String featureKey = ( ( List< Variable > ) b ).get( 0 ).getToken();
-				@SuppressWarnings( "unchecked" )
-				final String projectionKey = ( ( List< Variable > ) b ).get( 1 ).getToken();
-				final FeatureVariable< ? > fv;
-				if ( name.toLowerCase().trim().equals( "vertexfeature" ) )
-					fv = FeatureVariable.vertexFeature( graph, idmap, featureModel, featureKey, projectionKey );
-				else
-					fv = FeatureVariable.edgeFeature( graph, idmap, featureModel, featureKey, projectionKey );
-				return fv;
-			}
-			break;
+			return getFromFeature( name, b );
 		}
 		case "tagset":
 		case "vertextagset":
@@ -285,30 +316,11 @@ public class SelectionEvaluator< V extends Vertex< E >, E extends Edge< V > > ex
 			if ( b instanceof String )
 			{
 				final String tagSetName = ( String ) b;
-				TagSet tagSet = null;
-				// Find tagset from name.
-				for ( final TagSet ts : tagSetModel.getTagSetStructure().getTagSets() )
-					if ( ts.getName().equals( tagSetName ) )
-					{
-						tagSet = ts;
-						break;
-					}
-				if ( null == tagSet )
-					return new EmptyTagSetVariable();
-
-				final ObjTagMap< V, Tag > vertexTags = tagSetModel.getVertexTags().tags( tagSet );
-				final ObjTagMap< E, Tag > edgeTags = tagSetModel.getEdgeTags().tags( tagSet );
-				switch ( name.toLowerCase().trim() )
-				{
-				case "tagset":
-					return new GraphTagSetVariable<>( tagSet, vertexTags, edgeTags, graph.vertices(), graph.edges(), idmap );
-				case "vertextagset":
-					return new VertexTagSetVariable<>( tagSet, vertexTags, graph.vertices(), idmap.vertexIdBimap() );
-				case "edgetagset":
-					return new EdgeTagSetVariable<>( tagSet, edgeTags, graph.edges(), idmap.edgeIdBimap() );
-				}
+				return getFromTagSet( tagSetName, name );
 			}
-			break;
+			errorMessage = "Incorrect syntax for " + name + ". Specify the tag-set name "
+					+ "between single quotation marks (e.g. \"tagSet('Reviewed by')\").";
+			return null;
 		}
 		case "morph":
 		{
@@ -316,48 +328,50 @@ public class SelectionEvaluator< V extends Vertex< E >, E extends Edge< V > > ex
 			{
 				final Object arg0 = ( ( List ) b ).get( 0 );
 				final Object arg1 = ( ( List ) b ).get( 1 );
-				final SelectionVariable selectionVariable;
-				final List< String > switches = new ArrayList<>();
-				if ( arg0 instanceof SelectionVariable )
-				{
-					selectionVariable = ( SelectionVariable ) arg0;
-					if (arg1 instanceof List)
-					{
-						@SuppressWarnings( "unchecked" )
-						final List<Variable> tokens = ( List< Variable > ) arg1;
-						for ( final Variable tk : tokens )
-							switches.add( tk.getToken() );
-					}
-					else if (arg1 instanceof Variable)
-						switches.add( ( ( Variable ) arg1 ).getToken() );
-					else
-						return null;
-				}
-				else if ( arg1 instanceof SelectionVariable )
-				{
-					selectionVariable = ( SelectionVariable ) arg1;
-					if ( arg0 instanceof List )
-					{
-						@SuppressWarnings( "unchecked" )
-						final List< Variable > tokens = ( List< Variable > ) arg0;
-						for ( final Variable tk : tokens )
-							switches.add( tk.getToken() );
-					}
-					else if ( arg0 instanceof Variable )
-						switches.add( ( ( Variable ) arg0 ).getToken() );
-					else
-						return null;
-				}
-				else
-					return null;
-
-
+				return getFromMorph( arg0, arg1 );
 			}
-			break;
+			errorMessage = "Incorrect syntax for morph. Specify a selection variable and a list of morphings "
+					+ "(e.g. \"morph( vertexFeature('Spot N links') == 3, ('toVertex', 'outgoingEdges') )\".";
+			return null;
 		}
 		}
-		System.out.println( "Trolololo: " + b ); // DEBUG
+		errorMessage = "Unkown function name: " + name + ".";
 		return null;
+	}
+
+	private List< String > processMorphingTokens( final Object arg )
+	{
+		final List< String > switches = new ArrayList<>();
+		if ( arg instanceof List )
+		{
+			@SuppressWarnings( "rawtypes" )
+			final List tokens = ( List ) arg;
+			if ( tokens.isEmpty() )
+			{
+				errorMessage = "Calling morph: The list of morphings is empty.";
+				return null;
+			}
+			for ( final Object tk : tokens )
+			{
+
+				if ( !( tk instanceof String ) )
+				{
+					errorMessage = "Calling morph: Please specify morphings between single quotation marks "
+							+ "(e.g. 'toVertex', 'incomingEdges')";
+					return null;
+				}
+				switches.add( ( String ) tk );
+			}
+		}
+		else if ( arg instanceof String )
+			switches.add( ( String ) arg );
+		else
+		{
+			errorMessage = "Calling morph: Please specify morphings between single quotation marks "
+					+ "(e.g. 'toVertex', 'incomingEdges')";
+			return null;
+		}
+		return switches;
 	}
 
 	private Tag getTagFromName( final String b, final TagSet tagSet )
@@ -371,4 +385,152 @@ public class SelectionEvaluator< V extends Vertex< E >, E extends Edge< V > > ex
 		return null;
 	}
 
+	private FeatureVariable< ? > getFromFeature( final String name, Object parameters )
+	{
+		if ( parameters instanceof String )
+		{
+			// Single key? Scalar feature?
+			parameters = Arrays.asList( new String[] { ( String ) parameters, ( String ) parameters } );
+		}
+
+		if ( parameters instanceof List )
+		{
+			@SuppressWarnings( "unchecked" )
+			final List< Object > list = ( List< Object > ) parameters;
+			// Did we received a list of variables or strings?
+			final boolean haveVariable = list.stream().anyMatch( Variable.class::isInstance );
+			if ( haveVariable )
+			{
+				errorMessage = "Calling " + name + ": Please specify feature and projection keys between single quotation marks "
+						+ "(e.g. 'Spot position', 'X')";
+				return null;
+			}
+			if ( list.size() < 2 )
+			{
+				errorMessage = "Calling " + name + ": Please specify feature and projection keys as two parameters "
+						+ "(e.g. \"vertexFeature('Spotposition', 'X')\" )";
+				return null;
+			}
+
+			final String featureKey = ( String ) list.get( 0 );
+			final String projectionKey = ( String ) list.get( 1 );
+
+			final Feature< ?, ? > feature = featureModel.getFeature( featureKey );
+			if ( null == feature )
+			{
+				errorMessage = "Calling " + name + ": The feature '" + featureKey + "' is unknown to the feature model.";
+				return null;
+			}
+			if ( null == feature.getProjections().get( projectionKey ) )
+			{
+				errorMessage = "Calling " + name + ": The projection key '" + projectionKey + "' is unknown to the feature '" + featureKey + "'.";
+				return null;
+			}
+
+			final FeatureVariable< ? > fv;
+			if ( name.toLowerCase().trim().equals( "vertexfeature" ) )
+			{
+				if ( !featureModel.getFeatureSet( graph.vertexRef().getClass() ).contains( feature ) )
+				{
+					errorMessage = "Calling " + name + ": The feature '" + featureKey + "' is not defined for vertices.";
+					return null;
+				}
+				fv = FeatureVariable.vertexFeature( graph, idmap, featureModel, featureKey, projectionKey );
+			}
+			else
+			{
+				if ( !featureModel.getFeatureSet( graph.edgeRef().getClass() ).contains( feature ) )
+				{
+					errorMessage = "Calling " + name + ": The feature '" + featureKey + "' is not defined for edges.";
+					return null;
+				}
+				fv = FeatureVariable.edgeFeature( graph, idmap, featureModel, featureKey, projectionKey );
+			}
+			return fv;
+		}
+		errorMessage = "Calling " + name + ": Specify feature and projection keys as a list of two strings. "
+				+ "Got: " + parameters.getClass().getSimpleName() + ".";
+		return null;
+	}
+
+	private SelectionVariable getFromMorph( final Object arg0, final Object arg1 )
+	{
+		final SelectionVariable selectionVariable;
+		final List< String > switches;
+		if ( arg0 instanceof SelectionVariable )
+		{
+			selectionVariable = ( SelectionVariable ) arg0;
+			switches = processMorphingTokens( arg1 );
+		}
+		else if ( arg1 instanceof SelectionVariable )
+		{
+			selectionVariable = ( SelectionVariable ) arg1;
+			switches = processMorphingTokens( arg0 );
+		}
+		else
+		{
+			errorMessage = "Incorrect syntax for morph. Specify a selection variable and a list of morphings "
+					+ "(e.g. \"morph( vertexFeature('Spot N links') == 3, ('toVertex', 'outgoingEdges') )\".";
+			return null;
+		}
+
+		final SelectionMorpher< V, E > morpher = new SelectionMorpher<>( graph, idmap );
+		final List< Morpher > morphers = switches.stream()
+				.map( morpherMap::get )
+				.filter( Objects::nonNull )
+				.collect( Collectors.toList() );
+		final SelectionVariable morphed = morpher.morph( selectionVariable, morphers );
+		return morphed;
+	}
+
+	private TagSetVariable getFromTagSet( final String tagSetName, final String functionName )
+	{
+		TagSet tagSet = null;
+		// Find tagset from name.
+		for ( final TagSet ts : tagSetModel.getTagSetStructure().getTagSets() )
+			if ( ts.getName().equals( tagSetName ) )
+			{
+				tagSet = ts;
+				break;
+			}
+		if ( null == tagSet )
+			return new EmptyTagSetVariable();
+
+		final ObjTagMap< V, Tag > vertexTags = tagSetModel.getVertexTags().tags( tagSet );
+		final ObjTagMap< E, Tag > edgeTags = tagSetModel.getEdgeTags().tags( tagSet );
+		switch ( functionName.toLowerCase().trim() )
+		{
+		case "tagset":
+			return new GraphTagSetVariable<>( tagSet, vertexTags, edgeTags, graph.vertices(), graph.edges(), idmap );
+		case "vertextagset":
+			return new VertexTagSetVariable<>( tagSet, vertexTags, graph.vertices(), idmap.vertexIdBimap() );
+		case "edgetagset":
+			return new EdgeTagSetVariable<>( tagSet, edgeTags, graph.edges(), idmap.edgeIdBimap() );
+		}
+		errorMessage = "Unkown function name: " + functionName + ".";
+		return null;
+	}
+
+	private SelectionVariable equalTag( final TagSetVariable tsv, final Object param )
+	{
+		if ( param instanceof Variable )
+		{
+			errorMessage = "When using the 'equal to' operator ('=='), specify tag set and tag between "
+					+ "single quotation marks (e.g. 'Reviewed by' == 'someone').";
+			return null;
+		}
+
+		final Tag tag = getTagFromName( ( String ) param, tsv.getTagSet() );
+		if ( null == tag )
+		{
+			errorMessage = "The tag '" + tag + "is unknown to the tag-set model.";
+			return null;
+		}
+		return tsv.equal( tag );
+	}
+
+	public String getErrorMessage()
+	{
+		return errorMessage;
+	}
 }
