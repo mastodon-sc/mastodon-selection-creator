@@ -4,6 +4,7 @@ import java.util.BitSet;
 import java.util.Iterator;
 
 import org.mastodon.RefPool;
+import org.mastodon.collection.ref.RefArrayList;
 import org.mastodon.graph.Edge;
 import org.mastodon.graph.GraphIdBimap;
 import org.mastodon.graph.ReadOnlyGraph;
@@ -204,5 +205,32 @@ public class SelectionVariable
 				return edgeIterator( pool );
 			}
 		};
+	}
+
+	/**
+	 * Writes the content of this {@link SelectionVariable} into the specified
+	 * {@link SelectionModel}. The selection model is cleared first.
+	 *
+	 * @param selectionModel
+	 *            the selection model.
+	 * @param graphIdBimap
+	 *            the graph ID map.
+	 */
+	public < V extends Vertex< E >, E extends Edge< V > > void toSelectionModel( final SelectionModel< V, E > selectionModel, final GraphIdBimap< V, E > graphIdBimap )
+	{
+		selectionModel.pauseListeners();
+		selectionModel.clearSelection();
+
+		final RefArrayList< V > vertices = new RefArrayList<>( graphIdBimap.vertexIdBimap(), selectedVertices.cardinality() );
+		for ( final V v : vertices(graphIdBimap.vertexIdBimap()) )
+			vertices.add( v );
+
+		final RefArrayList< E > edges = new RefArrayList<>( graphIdBimap.edgeIdBimap(), selectedEdges.cardinality() );
+		for ( final E e : edges( graphIdBimap.edgeIdBimap() ) )
+			edges.add( e );
+
+		selectionModel.setVerticesSelected( vertices, true );
+		selectionModel.setEdgesSelected( edges, true );
+		selectionModel.resumeListeners();
 	}
 }
