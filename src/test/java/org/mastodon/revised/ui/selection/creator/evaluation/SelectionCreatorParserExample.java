@@ -1,4 +1,4 @@
-package org.mastodon.revised.ui.selection.util;
+package org.mastodon.revised.ui.selection.creator.evaluation;
 
 import java.awt.Color;
 import java.io.IOException;
@@ -38,7 +38,7 @@ import org.scijava.parse.SyntaxTree;
 
 import mpicbg.spim.data.SpimDataException;
 
-public class TestParsington
+public class SelectionCreatorParserExample
 {
 
 	public static void main( final String[] args ) throws IOException, SpimDataException
@@ -55,22 +55,25 @@ public class TestParsington
 		final TagSetModel< Spot, Link > tagSetModel = model.getTagSetModel();
 		final FeatureModel featureModel = model.getFeatureModel();
 
-		// Create a JY tag.
+		// Create some tags.
 		final TagSetStructure tss = new TagSetStructure();
-		tss.createTagSet( "Reviewed by" ).createTag( "JY", Color.GREEN.getRGB() );
+		final TagSet tagSet = tss.createTagSet( "Reviewed by" );
+		tagSet.createTag( "JY", Color.GREEN.getRGB() );
+		tagSet.createTag( "Tobias", Color.BLUE.getRGB() );
 		tagSetModel.setTagSetStructure( tss );
 		// Re-acquire new tag set (because the model stores a copy)
 		final TagSet tagSet2 = tagSetModel.getTagSetStructure().getTagSets().get( 0 );
 		final Tag jyTag = tagSet2.getTags().get( 0 );
+		final Tag tobiasTag = tagSet2.getTags().get( 1 );
 
 		// Assign JY tag to random vertices and edges.
 		final Random ran = new Random( 1l );
 		for ( final Spot v : graph.vertices() )
 			if ( ran.nextBoolean() )
-				tagSetModel.getVertexTags().set( v, jyTag );
+				tagSetModel.getVertexTags().set( v, ran.nextBoolean() ? jyTag : tobiasTag );
 		for ( final Link e : graph.edges() )
 			if ( ran.nextBoolean() )
-				tagSetModel.getEdgeTags().set( e, jyTag );
+				tagSetModel.getEdgeTags().set( e, ran.nextBoolean() ? jyTag : tobiasTag );
 
 		// Compute feature values.
 		final MamutFeatureComputerService service = context.getService( MamutFeatureComputerService.class );
@@ -80,33 +83,98 @@ public class TestParsington
 				.collect( Collectors.toSet() );
 		service.compute( model, featureModel, fcs, voidLogger() );
 
+		// Create random selection of vertices.
+		selectionModel.clearSelection();
+		for ( final Spot v : graph.vertices() )
+			if ( ran.nextBoolean() )
+				selectionModel.setSelected( v, true );
+
 		final List< String > tests = Arrays.asList( new String[] {
-				"paf > 3",
 
+				/*
+				 * All the vertices that are tagged with any tag in the tag-set 'Reviewed by'.
+				 */
+				"~vertexTagSet('Reviewed by')",
+
+				/*
+				 * All the vertices that are NOT tagged with any tag in the tag-set 'Reviewed by'.
+				 */
+				"!vertexTagSet('Reviewed by')",
+
+				/*
+				 * All the vertices that are NOT tagged with 'JY' in the tag-set 'Reviewed by'.
+				 */
+				"vertexTagSet('Reviewed by') != 'JY'",
+
+				/*
+				 * Remove from the selection all the spots that have 2 links.
+				 */
+				"selection - ( vertexFeature('Spot N links') == 2 )",
+
+				/*
+				 * Just return the edges of the current selection.
+				 */
+				"edgeSelection",
+
+				/*
+				 * Get the incoming edges of the vertices in the selection.
+				 */
+				"morph(vertexSelection, 'incomingEdges')",
+
+				/*
+				 * Get the currently selected vertices that have exactly 1 link.
+				 */
+				"selection & ( vertexFeature('Spot N links') == 1 )",
+
+				/*
+				 * Get the vertices of the frame 14 that have 3 links, and
+				 * return them plus their outgoing edges.
+				 */
 				"morph( "
-				+ 		"( vertexFeature('Spot N links') == 3 & vertexFeature('Spot frame') == 14 )"
-				+ ", ('toVertex', 'outgoingEdges') )",
+						+ "( vertexFeature('Spot N links') == 3 & vertexFeature('Spot frame') == 14 )"
+						+ ", ('toVertex', 'outgoingEdges') )",
 
+				/*
+				 * Get the vertices that have 3 links plus the vertices in the frame 25.
+				 */
 				"vertexFeature('Spot N links') == 3 | vertexFeature('Spot frame') == 25",
 
+				/*
+				 * Get the vertices that have 3 links plus the vertices in the
+				 * frame 25. Same as above, the '+' sign as the same meaning
+				 * that '|', but different priority so we have to add brackets
+				 * to avoid errors.
+				 */
 				"( vertexFeature('Spot N links') == 3 ) + ( vertexFeature('Spot frame') == 25 )",
 
+				/*
+				 * Get the vertices that are in the frame 25 AND have 3 links.
+				 */
 				"vertexFeature('Spot N links') == 3 & vertexFeature('Spot frame') == 25",
 
+				/*
+				 * Return the vertices and edges tagged by 'JY' in the tag-set 'Reviewed by'.
+				 */
 				"tagSet('Reviewed by') == 'JY'",
 
+				/*
+				 * Get all the vertices whose X position is strictly greater than 100.
+				 */
 				"vertexFeature('Spot position', 'X') > 100. "
 		} );
 
-		final SyntaxTree tree = new ExpressionParser().parseTree( tests.get( 0 ) );
+		final String expression = tests.get( 0 );
+		final SyntaxTree tree = new ExpressionParser().parseTree( expression );
 		final SelectionEvaluator< Spot, Link > evaluator = new SelectionEvaluator<>( graph, graphIdBimap, tagSetModel, featureModel, selectionModel );
 		try
 		{
+			System.out.println( "_________________________________" );
+			System.out.println( "Evaluating expression: " + expression );
 			final Object result = evaluator.evaluate( tree );
-			if (result instanceof SelectionVariable)
+			if ( result instanceof SelectionVariable )
 			{
-				System.out.println( "Evaluation successful. Content of the selection variable:" );
 				final SelectionVariable sv = ( SelectionVariable ) result;
+				System.out.println( "Evaluation successful. Content of the selection variable: " + sv );
 				final Spot ref = graph.vertexRef();
 				System.out.println( ModelUtils.dump(
 						sv.vertices( graph.vertices().getRefPool() ),
@@ -114,6 +182,10 @@ public class TestParsington
 						featureModel,
 						ref ) );
 				graph.releaseRef( ref );
+
+				sv.toSelectionModel( selectionModel, graphIdBimap );
+				windowManager.createTable( false );
+				windowManager.createTable( true );
 			}
 			else
 			{
@@ -126,7 +198,6 @@ public class TestParsington
 			iae.printStackTrace();
 		}
 	}
-
 
 	public static ObjectGraph< String > toMastodon( final SyntaxTree syntaxTree )
 	{
