@@ -1,4 +1,4 @@
-package org.mastodon.revised.ui.selection.creator.evaluation;
+package org.mastodon.revised.ui.selection.creator.parser.evaluation;
 
 import org.mastodon.collection.RefCollection;
 import org.mastodon.graph.GraphIdBimap;

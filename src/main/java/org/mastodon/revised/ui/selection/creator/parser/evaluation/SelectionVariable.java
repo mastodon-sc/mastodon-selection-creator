@@ -1,4 +1,4 @@
-package org.mastodon.revised.ui.selection.creator.evaluation;
+package org.mastodon.revised.ui.selection.creator.parser.evaluation;
 
 import java.util.BitSet;
 import java.util.Iterator;
@@ -10,7 +10,6 @@ import org.mastodon.graph.GraphIdBimap;
 import org.mastodon.graph.ReadOnlyGraph;
 import org.mastodon.graph.Vertex;
 import org.mastodon.model.SelectionModel;
-import org.mastodon.revised.ui.selection.creator.evaluation.util.BitSetIterator;
 
 /**
  * @author Jean-Yves Tinevez
@@ -44,6 +43,10 @@ public class SelectionVariable
 	 * @param idmap
 	 *            the mapping from graph objects to their id.
 	 * @return a new {@link SelectionVariable}.
+	 * @param <V>
+	 *            the type of vertices in the graph.
+	 * @param <E>
+	 *            the type of edges in the graph.
 	 */
 	public static < V extends Vertex< E >, E extends Edge< V > > SelectionVariable fromSelectionModel( final SelectionModel< V, E > selectionModel, final GraphIdBimap< V, E > idmap )
 	{
@@ -69,6 +72,11 @@ public class SelectionVariable
 	 * @param idmap
 	 *            the mapping from graph objects to their id.
 	 * @return a new {@link SelectionVariable}.
+	 * @param <V>
+	 *            the type of vertices in the graph.
+	 * @param <E>
+	 *            the type of edges in the graph.
+	 *
 	 */
 	public static < V extends Vertex< E >, E extends Edge< V > > SelectionVariable fromGraph( final ReadOnlyGraph< V, E > graph, final GraphIdBimap< V, E > idmap )
 	{
@@ -130,6 +138,8 @@ public class SelectionVariable
 	 * @param pool
 	 *            the vertex pool in which to take objects.
 	 * @return a new iterator.
+	 * @param <V>
+	 *            the type of vertices in the graph.
 	 */
 	public < V > Iterator< V > vertexIterator( final RefPool< V > pool )
 	{
@@ -159,6 +169,8 @@ public class SelectionVariable
 	 * @param pool
 	 *            the edge pool in which to take objects.
 	 * @return a new iterator.
+	 * @param <E>
+	 *            the type of edges in the graph.
 	 */
 	public < E > Iterator< E > edgeIterator( final RefPool< E > pool )
 	{
@@ -215,6 +227,10 @@ public class SelectionVariable
 	 *            the selection model.
 	 * @param graphIdBimap
 	 *            the graph ID map.
+	 * @param <V>
+	 *            the type of vertices in the graph.
+	 * @param <E>
+	 *            the type of edges in the graph.
 	 */
 	public < V extends Vertex< E >, E extends Edge< V > > void toSelectionModel( final SelectionModel< V, E > selectionModel, final GraphIdBimap< V, E > graphIdBimap )
 	{
@@ -222,7 +238,7 @@ public class SelectionVariable
 		selectionModel.clearSelection();
 
 		final RefArrayList< V > vertices = new RefArrayList<>( graphIdBimap.vertexIdBimap(), selectedVertices.cardinality() );
-		for ( final V v : vertices(graphIdBimap.vertexIdBimap()) )
+		for ( final V v : vertices( graphIdBimap.vertexIdBimap() ) )
 			vertices.add( v );
 
 		final RefArrayList< E > edges = new RefArrayList<>( graphIdBimap.edgeIdBimap(), selectedEdges.cardinality() );

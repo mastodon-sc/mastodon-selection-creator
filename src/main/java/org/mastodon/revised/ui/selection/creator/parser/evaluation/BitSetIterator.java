@@ -1,4 +1,4 @@
-package org.mastodon.revised.ui.selection.creator.evaluation.util;
+package org.mastodon.revised.ui.selection.creator.parser.evaluation;
 
 import java.util.BitSet;
 import java.util.NoSuchElementException;

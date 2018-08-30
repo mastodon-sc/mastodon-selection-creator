@@ -1,4 +1,4 @@
-package org.mastodon.revised.ui.selection.creator.evaluation;
+package org.mastodon.revised.ui.selection.creator.parser.evaluation;
 
 import java.util.BitSet;
 
@@ -8,10 +8,10 @@ import org.mastodon.revised.model.tag.ObjTagMap;
 import org.mastodon.revised.model.tag.TagSetStructure.Tag;
 import org.mastodon.revised.model.tag.TagSetStructure.TagSet;
 
-public class EdgeTagSetVariable< E > extends AbstractTagSetVariable< E >
+public class VertexTagSetVariable< V > extends AbstractTagSetVariable< V >
 {
 
-	public EdgeTagSetVariable( final TagSet tagSet, final ObjTagMap< E, Tag > tags, final RefCollection< E > collection, final RefPool< E > idMap )
+	public VertexTagSetVariable( final TagSet tagSet, final ObjTagMap< V, Tag > tags, final RefCollection< V > collection, final RefPool< V > idMap )
 	{
 		super( tagSet, tags, collection, idMap );
 	}
@@ -19,7 +19,7 @@ public class EdgeTagSetVariable< E > extends AbstractTagSetVariable< E >
 	@Override
 	protected SelectionVariable make( final BitSet bitset )
 	{
-		return new SelectionVariable( new BitSet(), bitset );
+		return new SelectionVariable( bitset, new BitSet() );
 	}
 
 }

@@ -1,4 +1,4 @@
-package org.mastodon.revised.ui.selection.creator.evaluation;
+package org.mastodon.revised.ui.selection.creator.parser.evaluation;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -18,7 +18,7 @@ import org.mastodon.revised.model.tag.ObjTagMap;
 import org.mastodon.revised.model.tag.TagSetModel;
 import org.mastodon.revised.model.tag.TagSetStructure.Tag;
 import org.mastodon.revised.model.tag.TagSetStructure.TagSet;
-import org.mastodon.revised.ui.selection.creator.evaluation.SelectionMorpher.Morpher;
+import org.mastodon.revised.ui.selection.creator.parser.evaluation.SelectionMorpher.Morpher;
 import org.scijava.parse.Function;
 import org.scijava.parse.Operator;
 import org.scijava.parse.Operators;
@@ -174,9 +174,9 @@ public class SelectionEvaluator< V extends Vertex< E >, E extends Edge< V > > ex
 	private Object notEqual( final Object a, final Object b )
 	{
 		if ( a instanceof FeatureVariable && b instanceof Number )
-			return ( ( FeatureVariable< ? > ) a ).notEqual( ( ( Number ) b ).doubleValue() );
+			return ( (org.mastodon.revised.ui.selection.creator.parser.evaluation.FeatureVariable< ? > ) a ).notEqual( ( ( Number ) b ).doubleValue() );
 		else if ( a instanceof Number && b instanceof FeatureVariable )
-			return ( ( FeatureVariable< ? > ) b ).notEqual( ( ( Number ) a ).doubleValue() );
+			return ( (org.mastodon.revised.ui.selection.creator.parser.evaluation.FeatureVariable< ? > ) b ).notEqual( ( ( Number ) a ).doubleValue() );
 		else if ( a instanceof TagSetVariable || b instanceof TagSetVariable )
 		{
 
@@ -202,9 +202,9 @@ public class SelectionEvaluator< V extends Vertex< E >, E extends Edge< V > > ex
 	private Object equal( final Object a, final Object b )
 	{
 		if ( a instanceof FeatureVariable && b instanceof Number )
-			return ( ( FeatureVariable< ? > ) a ).equal( ( ( Number ) b ).doubleValue() );
+			return ( (org.mastodon.revised.ui.selection.creator.parser.evaluation.FeatureVariable< ? > ) a ).equal( ( ( Number ) b ).doubleValue() );
 		else if ( a instanceof Number && b instanceof FeatureVariable )
-			return ( ( FeatureVariable< ? > ) b ).equal( ( ( Number ) a ).doubleValue() );
+			return ( (org.mastodon.revised.ui.selection.creator.parser.evaluation.FeatureVariable< ? > ) b ).equal( ( ( Number ) a ).doubleValue() );
 		else if ( a instanceof TagSetVariable || b instanceof TagSetVariable )
 		{
 
@@ -230,9 +230,9 @@ public class SelectionEvaluator< V extends Vertex< E >, E extends Edge< V > > ex
 	private Object greaterThanOrEqual( final Object a, final Object b )
 	{
 		if ( a instanceof FeatureVariable && b instanceof Number )
-			return ( ( FeatureVariable< ? > ) a ).greaterThanOrEqual( ( ( Number ) b ).doubleValue() );
+			return ( (org.mastodon.revised.ui.selection.creator.parser.evaluation.FeatureVariable< ? > ) a ).greaterThanOrEqual( ( ( Number ) b ).doubleValue() );
 		else if ( a instanceof Number && b instanceof FeatureVariable )
-			return ( ( FeatureVariable< ? > ) b ).lessThanOrEqual( ( ( Number ) a ).doubleValue() );
+			return ( (org.mastodon.revised.ui.selection.creator.parser.evaluation.FeatureVariable< ? > ) b ).lessThanOrEqual( ( ( Number ) a ).doubleValue() );
 
 		errorMessage = "Cannot apply the 'greater than or equal to' operator to " + a.getClass().getSimpleName() + " and " + b.getClass().getSimpleName() + ".";
 		return null;
@@ -241,9 +241,9 @@ public class SelectionEvaluator< V extends Vertex< E >, E extends Edge< V > > ex
 	private Object lessThanOrEqual( final Object a, final Object b )
 	{
 		if ( a instanceof FeatureVariable && b instanceof Number )
-			return ( ( FeatureVariable< ? > ) a ).lessThanOrEqual( ( ( Number ) b ).doubleValue() );
+			return ( (org.mastodon.revised.ui.selection.creator.parser.evaluation.FeatureVariable< ? > ) a ).lessThanOrEqual( ( ( Number ) b ).doubleValue() );
 		else if ( a instanceof Number && b instanceof FeatureVariable )
-			return ( ( FeatureVariable< ? > ) b ).greaterThanOrEqual( ( ( Number ) a ).doubleValue() );
+			return ( (org.mastodon.revised.ui.selection.creator.parser.evaluation.FeatureVariable< ? > ) b ).greaterThanOrEqual( ( ( Number ) a ).doubleValue() );
 
 		errorMessage = "Cannot apply the 'less than or equal to' operator to " + a.getClass().getSimpleName() + " and " + b.getClass().getSimpleName() + ".";
 		return null;
@@ -252,9 +252,9 @@ public class SelectionEvaluator< V extends Vertex< E >, E extends Edge< V > > ex
 	private Object greaterThan( final Object a, final Object b )
 	{
 		if ( a instanceof FeatureVariable && b instanceof Number )
-			return ( ( FeatureVariable< ? > ) a ).greaterThan( ( ( Number ) b ).doubleValue() );
+			return ( (org.mastodon.revised.ui.selection.creator.parser.evaluation.FeatureVariable< ? > ) a ).greaterThan( ( ( Number ) b ).doubleValue() );
 		else if ( a instanceof Number && b instanceof FeatureVariable )
-			return ( ( FeatureVariable< ? > ) b ).lessThan( ( ( Number ) a ).doubleValue() );
+			return ( (org.mastodon.revised.ui.selection.creator.parser.evaluation.FeatureVariable< ? > ) b ).lessThan( ( ( Number ) a ).doubleValue() );
 
 		errorMessage = "Cannot apply the 'greater than' operator to " + a.getClass().getSimpleName() + " and " + b.getClass().getSimpleName() + ".";
 		return null;
@@ -263,9 +263,9 @@ public class SelectionEvaluator< V extends Vertex< E >, E extends Edge< V > > ex
 	private Object lessThan( final Object a, final Object b )
 	{
 		if ( a instanceof FeatureVariable && b instanceof Number )
-			return ( ( FeatureVariable< ? > ) a ).lessThan( ( ( Number ) b ).doubleValue() );
+			return ( (org.mastodon.revised.ui.selection.creator.parser.evaluation.FeatureVariable< ? > ) a ).lessThan( ( ( Number ) b ).doubleValue() );
 		else if ( a instanceof Number && b instanceof FeatureVariable )
-			return ( ( FeatureVariable< ? > ) b ).greaterThan( ( ( Number ) a ).doubleValue() );
+			return ( (org.mastodon.revised.ui.selection.creator.parser.evaluation.FeatureVariable< ? > ) b ).greaterThan( ( ( Number ) a ).doubleValue() );
 
 		errorMessage = "Cannot apply the 'less than' operator to " + a.getClass().getSimpleName() + " and " + b.getClass().getSimpleName() + ".";
 		return null;

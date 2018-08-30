@@ -1,4 +1,4 @@
-package org.mastodon.revised.ui.selection.creator.evaluation;
+package org.mastodon.revised.ui.selection.creator.parser.evaluation;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -22,8 +22,10 @@ import org.mastodon.graph.TestSimpleVertex;
 import org.mastodon.graph.Vertex;
 import org.mastodon.graph.algorithm.traversal.DepthFirstSearch;
 import org.mastodon.graph.algorithm.traversal.GraphSearch.SearchDirection;
+import org.mastodon.revised.ui.selection.creator.parser.evaluation.SelectionMorpher;
+import org.mastodon.revised.ui.selection.creator.parser.evaluation.SelectionVariable;
+import org.mastodon.revised.ui.selection.creator.parser.evaluation.SelectionMorpher.Morpher;
 import org.mastodon.graph.algorithm.traversal.SearchListener;
-import org.mastodon.revised.ui.selection.creator.evaluation.SelectionMorpher.Morpher;
 
 public class SelectionMorpherTest
 {
