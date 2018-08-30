@@ -110,6 +110,8 @@ public class SelectionEvaluator< V extends Vertex< E >, E extends Edge< V > > ex
 			return neg( a );
 		if ( op == Operators.NOT )
 			return not( a );
+		if ( op == Operators.COMPLEMENT )
+			return complement( a );
 		if ( op == Operators.ADD || op == Operators.BITWISE_OR )
 			return add( a, b );
 		if ( op == Operators.SUB )
@@ -274,7 +276,16 @@ public class SelectionEvaluator< V extends Vertex< E >, E extends Edge< V > > ex
 		if ( a instanceof TagSetVariable )
 			return ( ( TagSetVariable ) a ).unset();
 
-		errorMessage = "Cannot apply the 'not' operator to " + a.getClass() + ".";
+		errorMessage = "Cannot apply the 'not' ('!') operator to " + a.getClass() + ".";
+		return null;
+	}
+
+	private Object complement( final Object a )
+	{
+		if ( a instanceof TagSetVariable )
+			return ( ( TagSetVariable ) a ).set();
+
+		errorMessage = "Cannot apply the 'complement' ('~') operator to " + a.getClass() + ".";
 		return null;
 	}
 
