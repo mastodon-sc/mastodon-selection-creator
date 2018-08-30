@@ -175,21 +175,22 @@ public class SelectionEvaluator< V extends Vertex< E >, E extends Edge< V > > ex
 			return ( ( FeatureVariable< ? > ) a ).notEqual( ( ( Number ) b ).doubleValue() );
 		else if ( a instanceof Number && b instanceof FeatureVariable )
 			return ( ( FeatureVariable< ? > ) b ).notEqual( ( ( Number ) a ).doubleValue() );
-		else if ( a instanceof TagSetVariable && b instanceof Variable )
+		else if ( a instanceof TagSetVariable || b instanceof TagSetVariable )
 		{
-			final TagSetVariable tsv = ( TagSetVariable ) a;
-			final Tag tag = getTagFromName( ( ( Variable ) b ).getToken(), tsv.getTagSet() );
-			if ( null == tag )
-				return new SelectionVariable();
-			return tsv.notEqual( tag );
-		}
-		else if ( b instanceof TagSetVariable && a instanceof Variable )
-		{
-			final TagSetVariable tsv = ( TagSetVariable ) b;
-			final Tag tag = getTagFromName( ( ( Variable ) a ).getToken(), tsv.getTagSet() );
-			if ( null == tag )
-				return new SelectionVariable();
-			return tsv.notEqual( tag );
+
+			final TagSetVariable tsv;
+			final Object param;
+			if ( a instanceof TagSetVariable )
+			{
+				tsv = ( TagSetVariable ) a;
+				param = b;
+			}
+			else
+			{
+				tsv = ( TagSetVariable ) b;
+				param = a;
+			}
+			return notEqualTag( tsv, param );
 		}
 
 		errorMessage = "Cannot apply the 'not equal to' operator to " + a.getClass().getSimpleName() + " and " + b.getClass().getSimpleName() + ".";
@@ -423,17 +424,6 @@ public class SelectionEvaluator< V extends Vertex< E >, E extends Edge< V > > ex
 		return switches;
 	}
 
-	private Tag getTagFromName( final String b, final TagSet tagSet )
-	{
-		if ( tagSet == null )
-			return null;
-		final List< Tag > tags = tagSet.getTags();
-		for ( final Tag tag : tags )
-			if ( tag.label().equals( b ) )
-				return tag;
-		return null;
-	}
-
 	private FeatureVariable< ? > getFromFeature( final String name, Object parameters )
 	{
 		if ( parameters instanceof String )
@@ -574,20 +564,44 @@ public class SelectionEvaluator< V extends Vertex< E >, E extends Edge< V > > ex
 
 	private SelectionVariable equalTag( final TagSetVariable tsv, final Object param )
 	{
+		final Tag tag = checkTagAsParam( tsv, param );
+		if (null == tag)
+			return null;
+		return tsv.equal( tag );
+	}
+
+	private SelectionVariable notEqualTag( final TagSetVariable tsv, final Object param )
+	{
+		final Tag tag = checkTagAsParam( tsv, param );
+		if (null == tag)
+			return null;
+		return tsv.notEqual( tag );
+	}
+
+	private Tag checkTagAsParam(final TagSetVariable tsv, final Object param)
+	{
 		if ( param instanceof Variable )
 		{
-			errorMessage = "When using the 'equal to' operator ('=='), specify tag set and tag between "
+			errorMessage = "When using a comparison operator with tag-sets, specify tag-set and tag between "
 					+ "single quotation marks (e.g. 'Reviewed by' == 'someone').";
 			return null;
 		}
 
-		final Tag tag = getTagFromName( ( String ) param, tsv.getTagSet() );
+		final TagSet tagSet = tsv.getTagSet();
+		final List< Tag > tags = tagSet.getTags();
+		Tag tag = null;
+		for ( final Tag t : tags )
+			if ( t.label().equals( param ) )
+			{
+				tag = t;
+				break;
+			}
 		if ( null == tag )
 		{
-			errorMessage = "The tag '" + tag + "is unknown to the tag-set model.";
+			errorMessage = "The tag '" + param + "' is unknown to the tag-set '" + tagSet.getName() + "'.";
 			return null;
 		}
-		return tsv.equal( tag );
+		return tag;
 	}
 
 	public String getErrorMessage()
