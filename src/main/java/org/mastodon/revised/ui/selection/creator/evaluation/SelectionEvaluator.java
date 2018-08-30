@@ -6,8 +6,6 @@ import java.util.Deque;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 import org.mastodon.graph.Edge;
 import org.mastodon.graph.GraphIdBimap;
@@ -24,6 +22,7 @@ import org.mastodon.revised.ui.selection.creator.evaluation.SelectionMorpher.Mor
 import org.scijava.parse.Function;
 import org.scijava.parse.Operator;
 import org.scijava.parse.Operators;
+import org.scijava.parse.SyntaxTree;
 import org.scijava.parse.Tokens;
 import org.scijava.parse.Variable;
 import org.scijava.parse.eval.AbstractStackEvaluator;
@@ -61,6 +60,18 @@ public class SelectionEvaluator< V extends Vertex< E >, E extends Edge< V > > ex
 	}
 
 	@Override
+	public Object evaluate( final SyntaxTree syntaxTree )
+	{
+		// Intercept result that could be variables that need to be transformed
+		// into a selection.
+		Object result = super.evaluate( syntaxTree );
+		if ( null != result && Tokens.isVariable( result ) )
+			result = getVariableValue( ( Variable ) result );
+
+		return result;
+	}
+
+	@Override
 	public Object execute( final Operator op, final Deque< Object > stack )
 	{
 		errorMessage = null;
@@ -72,8 +83,21 @@ public class SelectionEvaluator< V extends Vertex< E >, E extends Edge< V > > ex
 		{
 			args[ i ] = stack.pop();
 		}
-		final Object a = args.length > 0 ? args[ 0 ] : null;
-		final Object b = args.length > 1 ? args[ 1 ] : null;
+		final Object arg0 = args.length > 0 ? args[ 0 ] : null;
+		final Object arg1 = args.length > 1 ? args[ 1 ] : null;
+
+		// Intercept variables that can come from selection.
+		final Object a;
+		final Object b;
+		if ( null != arg0 && Tokens.isVariable( arg0 ) )
+			a = getVariableValue( ( Variable ) arg0 );
+		else
+			a = arg0;
+
+		if ( null != arg1 && Tokens.isVariable( arg1 ) )
+			b = getVariableValue( ( Variable ) arg1 );
+		else
+			b = arg1;
 
 		// Let the case logic begin!
 		if ( op instanceof Function )
@@ -108,6 +132,29 @@ public class SelectionEvaluator< V extends Vertex< E >, E extends Edge< V > > ex
 		// Unknown operator.
 		errorMessage = "Unknown operator: " + op;
 		return null;
+	}
+
+	private Object getVariableValue( final Variable variable )
+	{
+		switch ( variable.getToken().toLowerCase() )
+		{
+		case "selection":
+			return SelectionVariable.fromSelectionModel( selectionModel, idmap );
+		case "vertexselection":
+		{
+			final SelectionVariable sv = SelectionVariable.fromSelectionModel( selectionModel, idmap );
+			sv.clearEdges();
+			return sv;
+		}
+		case "edgeselection":
+		{
+			final SelectionVariable sv = SelectionVariable.fromSelectionModel( selectionModel, idmap );
+			sv.clearVertices();
+			return sv;
+		}
+		default:
+			return variable;
+		}
 	}
 
 	private Object and( final Object a, final Object b )
@@ -295,7 +342,9 @@ public class SelectionEvaluator< V extends Vertex< E >, E extends Edge< V > > ex
 		}
 
 		// NB: Unknown function type.
-		errorMessage = "Do not know how to handle " + a + " and " + b + ".";
+		errorMessage = ( null == errorMessage )
+				? "Do not know how to handle " + a + " and " + b + "."
+				: errorMessage;
 		return null;
 	}
 
@@ -453,8 +502,13 @@ public class SelectionEvaluator< V extends Vertex< E >, E extends Edge< V > > ex
 		return null;
 	}
 
-	private SelectionVariable getFromMorph( final Object arg0, final Object arg1 )
+	private SelectionVariable getFromMorph( Object arg0, Object arg1 )
 	{
+		if (Tokens.isVariable( arg0 ))
+			arg0 = getVariableValue( ( Variable ) arg0 );
+		if (Tokens.isVariable( arg1 ))
+			arg1 = getVariableValue( ( Variable ) arg1 );
+
 		final SelectionVariable selectionVariable;
 		final List< String > switches;
 		if ( arg0 instanceof SelectionVariable )
@@ -475,10 +529,17 @@ public class SelectionEvaluator< V extends Vertex< E >, E extends Edge< V > > ex
 		}
 
 		final SelectionMorpher< V, E > morpher = new SelectionMorpher<>( graph, idmap );
-		final List< Morpher > morphers = switches.stream()
-				.map( morpherMap::get )
-				.filter( Objects::nonNull )
-				.collect( Collectors.toList() );
+		final List< Morpher > morphers = new ArrayList<>();
+		for ( final String sw : switches )
+		{
+			final Morpher mp = morpherMap.get( sw );
+			if (null == mp )
+			{
+				errorMessage = "Incorrect syntax for morph. Unknown morpher '" + sw + "'.";
+				return null;
+			}
+			morphers.add( mp );
+		}
 		final SelectionVariable morphed = morpher.morph( selectionVariable, morphers );
 		return morphed;
 	}
