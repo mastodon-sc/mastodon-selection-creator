@@ -3,11 +3,18 @@ package org.mastodon.revised.ui.selection.creator.parser.plugin.settings;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import org.mastodon.app.ui.settings.style.Style;
+import org.mastodon.util.Listeners;
 
 public class SelectionCreatorSettings implements Style< SelectionCreatorSettings >
 {
+
+	public interface UpdateListener
+	{
+		public void settingsChanged();
+	}
 
 	private String name;
 
@@ -15,14 +22,19 @@ public class SelectionCreatorSettings implements Style< SelectionCreatorSettings
 
 	private String description;
 
-	private SelectionCreatorSettings()
-	{}
+	private final Listeners.List< UpdateListener > updateListeners;
 
-	public void set(final SelectionCreatorSettings scs)
+	private SelectionCreatorSettings()
+	{
+		this.updateListeners = new Listeners.SynchronizedList<>();
+	}
+
+	public void set( final SelectionCreatorSettings scs )
 	{
 		this.name = scs.name;
 		this.expression = scs.expression;
 		this.description = scs.description;
+		notifyListeners();
 	}
 
 	public String description()
@@ -37,12 +49,20 @@ public class SelectionCreatorSettings implements Style< SelectionCreatorSettings
 
 	public void setExpression( final String expression )
 	{
-		this.expression = expression;
+		if ( !Objects.equals( this.expression, expression ) )
+		{
+			this.expression = expression;
+			notifyListeners();
+		}
 	}
 
 	public void setDescription( final String description )
 	{
-		this.description = description;
+		if ( !Objects.equals( this.description, description ) )
+		{
+			this.description = description;
+			notifyListeners();
+		}
 	}
 
 	@Override
@@ -68,17 +88,33 @@ public class SelectionCreatorSettings implements Style< SelectionCreatorSettings
 	}
 
 	@Override
-	public void setName( final String name )
+	public synchronized void setName( final String name )
 	{
-		this.name = name;
+		if ( !Objects.equals( this.name, name ) )
+		{
+			this.name = name;
+			notifyListeners();
+		}
+	}
+
+	private void notifyListeners()
+	{
+		for ( final UpdateListener l : updateListeners.list )
+			l.settingsChanged();
+	}
+
+	public Listeners< UpdateListener > updateListeners()
+	{
+		return updateListeners;
 	}
 
 	/**
 	 * List of examples to serve as built-in defaults.
 	 */
 	public static final List< SelectionCreatorSettings > EXAMPLES;
-	static {
-		final List<SelectionCreatorSettings> exs = new ArrayList<>();
+	static
+	{
+		final List< SelectionCreatorSettings > exs = new ArrayList<>();
 
 		final SelectionCreatorSettings ex1 = new SelectionCreatorSettings();
 		ex1.name = "X larger than 100";
@@ -162,5 +198,4 @@ public class SelectionCreatorSettings implements Style< SelectionCreatorSettings
 
 		EXAMPLES = Collections.unmodifiableList( exs );
 	}
-
 }

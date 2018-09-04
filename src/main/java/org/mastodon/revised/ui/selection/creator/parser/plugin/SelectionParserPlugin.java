@@ -21,6 +21,7 @@ import org.mastodon.revised.mamut.KeyConfigContexts;
 import org.mastodon.revised.mamut.MamutMenuBuilder;
 import org.mastodon.revised.ui.keymap.CommandDescriptionProvider;
 import org.mastodon.revised.ui.keymap.CommandDescriptions;
+import org.mastodon.revised.ui.selection.creator.parser.plugin.settings.SelectionCreatorConfigPage;
 import org.mastodon.revised.ui.selection.creator.parser.plugin.settings.SelectionCreatorSettingsManager;
 import org.scijava.Context;
 import org.scijava.log.LogService;
