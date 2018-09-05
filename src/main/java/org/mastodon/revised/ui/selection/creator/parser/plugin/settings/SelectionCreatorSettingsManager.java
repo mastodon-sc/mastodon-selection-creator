@@ -23,7 +23,7 @@ public class SelectionCreatorSettingsManager extends AbstractStyleManager< Selec
 	 * A {@code SelectionCreatorSettings} that has the same properties as the default
 	 * RenderSettings. In contrast to defaultStyle this will always
 	 * refer to the same object, so a consumers can just use this one
-	 * RenderSettings to listen for changes and for painting.
+	 * SelectionCreatorSettings to listen for changes and for painting.
 	 */
 	private final SelectionCreatorSettings forwardDefaultStyle;
 
@@ -44,10 +44,10 @@ public class SelectionCreatorSettingsManager extends AbstractStyleManager< Selec
 	}
 
 	@Override
-	public synchronized void setDefaultStyle( final SelectionCreatorSettings renderSettings )
+	public synchronized void setDefaultStyle( final SelectionCreatorSettings settings )
 	{
 		defaultStyle.updateListeners().remove( updateForwardDefaultListeners );
-		defaultStyle = renderSettings;
+		defaultStyle = settings;
 		forwardDefaultStyle.set( defaultStyle );
 		defaultStyle.updateListeners().add( updateForwardDefaultListeners );
 	}

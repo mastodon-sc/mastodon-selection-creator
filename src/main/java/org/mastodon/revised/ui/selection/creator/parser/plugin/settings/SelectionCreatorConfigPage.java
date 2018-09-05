@@ -4,9 +4,12 @@ import java.awt.BorderLayout;
 import java.awt.Frame;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.Locale;
 
 import javax.swing.JDialog;
 import javax.swing.JPanel;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.WindowConstants;
 
 import org.mastodon.app.ui.settings.ModificationListener;
@@ -85,8 +88,13 @@ public class SelectionCreatorConfigPage extends SelectAndEditProfileSettingsPage
 		}
 	}
 
-	public static void main( final String[] args )
+	public static void main( final String[] args ) throws ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException
 	{
+
+		UIManager.setLookAndFeel( UIManager.getSystemLookAndFeelClassName() );
+		Locale.setDefault( Locale.ROOT );
+		System.setProperty( "apple.laf.useScreenMenuBar", "true" );
+
 		final SelectionCreatorSettingsManager styleManager = new SelectionCreatorSettingsManager();
 
 		final SettingsPanel settings = new SettingsPanel();
