@@ -76,8 +76,8 @@ public class SelectionCreatorSettings implements Style< SelectionCreatorSettings
 	{
 		final SelectionCreatorSettings sats = new SelectionCreatorSettings();
 		sats.set( this );
-		if ( name != null )
-			sats.setName( name );
+		if ( newName != null )
+			sats.setName( newName );
 		return sats;
 	}
 
@@ -108,6 +108,15 @@ public class SelectionCreatorSettings implements Style< SelectionCreatorSettings
 		return updateListeners;
 	}
 
+	@Override
+	public String toString()
+	{
+		return super.toString()
+				+ "\n - name: " + name
+				+ "\n - expression: " + expression
+				+ "\n - description: " + description;
+	}
+
 	/**
 	 * List of examples to serve as built-in defaults.
 	 */
@@ -127,8 +136,8 @@ public class SelectionCreatorSettings implements Style< SelectionCreatorSettings
 		final SelectionCreatorSettings ex2 = new SelectionCreatorSettings();
 		ex2.name = "Reviewed by JY";
 		ex2.expression = "tagSet('Reviewed by') == 'JY'";
-		ex2.description = "Return the vertices and edges tagged by <code>JY</code> in the tag-set "
-				+ "<code>Reviewed by</code>. Of course, both specified tag-set and tag must exist.";
+		ex2.description = "Return the vertices and edges tagged by JY in the tag-set "
+				+ "Reviewed by. Of course, both specified tag-set and tag must exist.";
 		exs.add( ex2 );
 
 		final SelectionCreatorSettings ex3 = new SelectionCreatorSettings();
@@ -178,22 +187,22 @@ public class SelectionCreatorSettings implements Style< SelectionCreatorSettings
 		final SelectionCreatorSettings ex10 = new SelectionCreatorSettings();
 		ex10.name = "Vertices not tagged with JY";
 		ex10.expression = "vertexTagSet('Reviewed by') != 'JY'";
-		ex10.description = "All the vertices that are NOT tagged with <code>JY</code> in the tag-set "
-				+ "<code>Reviewed by</code>.";
+		ex10.description = "All the vertices that are NOT tagged with JY in the tag-set "
+				+ "Reviewed by.";
 		exs.add( ex10 );
 
 		final SelectionCreatorSettings ex11 = new SelectionCreatorSettings();
 		ex11.name = "Edges not tagged";
 		ex11.expression = "!edgeTagSet('Reviewed by')";
 		ex11.description = "All the edges that are NOT tagged with any tag in the tag-set "
-				+ "<code>Reviewed by</code>.";
+				+ "Reviewed by.";
 		exs.add( ex11 );
 
 		final SelectionCreatorSettings ex12 = new SelectionCreatorSettings();
 		ex12.name = "Vertices with a tag";
 		ex12.expression = "~vertexTagSet('Reviewed by')";
 		ex12.description = "All the vertices that are tagged with any tag in the tag-set "
-				+ "<code>Reviewed by</code>.";
+				+ "Reviewed by.";
 		exs.add( ex12 );
 
 		EXAMPLES = Collections.unmodifiableList( exs );
