@@ -1,39 +1,38 @@
 package org.mastodon.revised.ui.selection.creator.parser.plugin.settings;
 
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.KeyboardFocusManager;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
-import javax.swing.JEditorPane;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JTextArea;
 import javax.swing.JTextPane;
-import javax.swing.JToggleButton;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.DefaultStyledDocument;
-import javax.swing.text.Document;
-import javax.swing.text.SimpleAttributeSet;
-import javax.swing.text.StyleConstants;
-import javax.swing.text.StyledDocument;
-import javax.swing.text.StyledEditorKit;
-import javax.swing.text.html.HTMLDocument;
-import javax.swing.text.html.HTMLEditorKit;
 
 public class SelectionCreatorSettingsPanel extends JPanel
 {
 
 	private static final long serialVersionUID = 1L;
 
+	private final SelectionCreatorSettings settings;
+
+	private final JTextPane textPaneDescription;
+
+	private final JTextPane textPaneExpression;
+
 	public SelectionCreatorSettingsPanel( final SelectionCreatorSettings settings )
 	{
+		this.settings = settings;
+
 		final GridBagLayout gridBagLayout = new GridBagLayout();
 		gridBagLayout.columnWidths = new int[] { 0, 0, 0 };
 		gridBagLayout.rowHeights = new int[] { 0, 0, 0, 0, 0, 0, 0 };
@@ -45,7 +44,7 @@ public class SelectionCreatorSettingsPanel extends JPanel
 		lblExpression.setFont( lblExpression.getFont().deriveFont( lblExpression.getFont().getStyle() | Font.BOLD ) );
 		final GridBagConstraints gbc_lblExpression = new GridBagConstraints();
 		gbc_lblExpression.anchor = GridBagConstraints.WEST;
-		gbc_lblExpression.insets = new Insets( 0, 0, 5, 5 );
+		gbc_lblExpression.insets = new Insets(5, 5, 5, 5);
 		gbc_lblExpression.gridx = 0;
 		gbc_lblExpression.gridy = 0;
 		add( lblExpression, gbc_lblExpression );
@@ -57,56 +56,44 @@ public class SelectionCreatorSettingsPanel extends JPanel
 		gbc_btnHelp.gridy = 0;
 		add( btnHelp, gbc_btnHelp );
 
-		final JTextPane textAreaExpression = new JTextPane();
-		textAreaExpression.setFont( new Font(
+		this.textPaneExpression = new JTextPane();
+		textPaneExpression.setBorder( BorderFactory.createCompoundBorder(
+				textPaneExpression.getBorder(),
+				BorderFactory.createEmptyBorder( 15, 15, 15, 15 ) ) );
+		textPaneExpression.setFont( new Font(
 				"Monospaced",
-				textAreaExpression.getFont().getStyle(),
-				textAreaExpression.getFont().getSize() + 2 ) );
-		textAreaExpression.setText( settings.expression() );
+				textPaneExpression.getFont().getStyle(),
+				textPaneExpression.getFont().getSize() + 2 ) );
+		textPaneExpression.setText( settings.expression() );
+		tabTransferFocus( textPaneExpression );
 		final GridBagConstraints gbc_textAreaExpression = new GridBagConstraints();
 		gbc_textAreaExpression.gridwidth = 2;
-		gbc_textAreaExpression.insets = new Insets( 0, 0, 5, 0 );
+		gbc_textAreaExpression.insets = new Insets(15, 15, 15, 15);
 		gbc_textAreaExpression.fill = GridBagConstraints.BOTH;
 		gbc_textAreaExpression.gridx = 0;
 		gbc_textAreaExpression.gridy = 1;
-		add( textAreaExpression, gbc_textAreaExpression );
-
-		final StyledDocument doc = textAreaExpression.getStyledDocument();
-		final SimpleAttributeSet center = new SimpleAttributeSet();
-		StyleConstants.setAlignment( center, StyleConstants.ALIGN_CENTER );
-		doc.setParagraphAttributes( 0, doc.getLength(), center, false );
+		add( textPaneExpression, gbc_textAreaExpression );
 
 		final JLabel lblDescription = new JLabel( "Description:" );
 		lblDescription.setFont( lblDescription.getFont().deriveFont( lblDescription.getFont().getStyle() | Font.BOLD ) );
 		final GridBagConstraints gbc_lblDescription = new GridBagConstraints();
-		gbc_lblDescription.insets = new Insets( 0, 0, 5, 5 );
+		gbc_lblDescription.insets = new Insets(5, 5, 5, 5);
 		gbc_lblDescription.anchor = GridBagConstraints.WEST;
 		gbc_lblDescription.gridx = 0;
 		gbc_lblDescription.gridy = 2;
 		add( lblDescription, gbc_lblDescription );
 
-		final JToggleButton tglbtnEdit = new JToggleButton( "Edit" );
-		final GridBagConstraints gbc_tglbtnEdit = new GridBagConstraints();
-		gbc_tglbtnEdit.insets = new Insets( 0, 0, 5, 0 );
-		gbc_tglbtnEdit.gridx = 1;
-		gbc_tglbtnEdit.gridy = 2;
-		add( tglbtnEdit, gbc_tglbtnEdit );
-
-		final JEditorPane editorPaneDescription = new JEditorPane();
-		final HTMLEditorKit kit = new HTMLEditorKit();
-		final HTMLDocument htmlDoc = new HTMLDocument();
-		editorPaneDescription.setEditorKit( kit );
-		editorPaneDescription.setDocument( htmlDoc );
-		editorPaneDescription.setOpaque( false );
-		editorPaneDescription.setEditable( false );
-		editorPaneDescription.setText( settings.expression() );
+		this.textPaneDescription = new JTextPane();
+		textPaneDescription.setOpaque( false );
+		textPaneDescription.setEditable( true );
+		tabTransferFocus( textPaneDescription );
 		final GridBagConstraints gbc_editorPaneDescription = new GridBagConstraints();
-		gbc_editorPaneDescription.insets = new Insets( 0, 0, 5, 0 );
+		gbc_editorPaneDescription.insets = new Insets(15, 15, 15, 15);
 		gbc_editorPaneDescription.gridwidth = 2;
 		gbc_editorPaneDescription.fill = GridBagConstraints.BOTH;
 		gbc_editorPaneDescription.gridx = 0;
 		gbc_editorPaneDescription.gridy = 3;
-		add( editorPaneDescription, gbc_editorPaneDescription );
+		add( textPaneDescription, gbc_editorPaneDescription );
 
 		final JSeparator separator = new JSeparator();
 		final GridBagConstraints gbc_separator = new GridBagConstraints();
@@ -133,87 +120,50 @@ public class SelectionCreatorSettingsPanel extends JPanel
 		gbc_btnRun.gridy = 5;
 		add( btnRun, gbc_btnRun );
 
+		setPreferredSize( new Dimension( 400, 200 ) );
+
 		/*
 		 * Update display on settings changes.
 		 */
 
-		settings.updateListeners().add( () -> {
-			editorPaneDescription.setText( settings.description() );
-			textAreaExpression.setText( settings.expression() );
-			repaint();
-		} );
-
-		// Edit description
-		tglbtnEdit.addActionListener( new ActionListener()
-		{
-
-			@Override
-			public void actionPerformed( final ActionEvent e )
-			{
-				final boolean selected = tglbtnEdit.isSelected();
-				if ( selected )
-				{
-					final StyledEditorKit kit = new StyledEditorKit();
-					final DefaultStyledDocument doc = new DefaultStyledDocument();
-					doc.addDocumentListener( new MyDocumentListener( settings ) );
-					editorPaneDescription.setEditorKit( kit );
-					editorPaneDescription.setDocument( doc );
-
-				}
-				else
-				{
-					final HTMLEditorKit kit = new HTMLEditorKit();
-					final HTMLDocument htmlDoc = new HTMLDocument();
-					editorPaneDescription.setEditorKit( kit );
-					editorPaneDescription.setDocument( htmlDoc );
-				}
-				editorPaneDescription.setText( settings.description() );
-				editorPaneDescription.setEditable( selected );
-				editorPaneDescription.setOpaque( selected );
-				editorPaneDescription.repaint();
-			}
-		} );
+		settings.updateListeners().add( () -> updateFromSettings() );
+		final MyFocusListener focusListener = new MyFocusListener();
+		textPaneExpression.addFocusListener( focusListener );
+		textPaneDescription.addFocusListener( focusListener );
+		updateFromSettings();
 	}
 
-	private static final class MyDocumentListener implements DocumentListener
+	private void commitToSettings()
+	{
+		settings.setExpression( textPaneExpression.getText() );
+		settings.setDescription( textPaneDescription.getText() );
+	}
+
+	private void updateFromSettings()
+	{
+		textPaneExpression.setText( settings.expression() );
+		textPaneDescription.setText( settings.description() );
+		repaint();
+	}
+
+	private class MyFocusListener implements FocusListener
 	{
 
-		private final SelectionCreatorSettings settings;
-
-		public MyDocumentListener( final SelectionCreatorSettings settings )
-		{
-			this.settings = settings;
-		}
+		@Override
+		public void focusGained( final FocusEvent e )
+		{}
 
 		@Override
-		public void insertUpdate( final DocumentEvent e )
+		public void focusLost( final FocusEvent e )
 		{
-			settings.setDescription( getText( e.getDocument() ) );
+			commitToSettings();
 		}
-
-		@Override
-		public void removeUpdate( final DocumentEvent e )
-		{
-			settings.setDescription( getText( e.getDocument() ) );
-		}
-
-		@Override
-		public void changedUpdate( final DocumentEvent e )
-		{
-			settings.setDescription( getText( e.getDocument() ) );
-		}
-
-		private static final String getText(final Document doc )
-		{
-			try
-			{
-				return doc.getText( 0, doc.getLength() );
-			}
-			catch ( final BadLocationException e )
-			{
-				return "";
-			}
-		}
-
 	}
+
+	private static final void tabTransferFocus( final JComponent component )
+	{
+		component.setFocusTraversalKeys( KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS, null );
+		component.setFocusTraversalKeys( KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS, null );
+	}
+
 }
