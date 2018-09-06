@@ -5,6 +5,7 @@ import java.awt.Frame;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.Locale;
+import java.util.function.Function;
 
 import javax.swing.JDialog;
 import javax.swing.JPanel;
@@ -24,13 +25,17 @@ public class SelectionCreatorConfigPage extends SelectAndEditProfileSettingsPage
 	/**
 	 * @param treePath
 	 * 		path of this page in the settings tree.
+	 * @param evaluator
 	 */
-	public SelectionCreatorConfigPage( final String treePath, final SelectionCreatorSettingsManager selectionCreatorSettingsManager )
+	public SelectionCreatorConfigPage(
+			final String treePath,
+			final SelectionCreatorSettingsManager selectionCreatorSettingsManager,
+			final Function< String, String > evaluator )
 	{
 		super(
 				treePath,
 				new StyleProfileManager<>( selectionCreatorSettingsManager, new SelectionCreatorSettingsManager( false ) ),
-				new SelectionCreatorSettingsEditPanel( selectionCreatorSettingsManager.getDefaultStyle() ) );
+				new SelectionCreatorSettingsEditPanel( selectionCreatorSettingsManager.getDefaultStyle(), evaluator ) );
 	}
 
 	static class SelectionCreatorSettingsEditPanel implements SelectionCreatorSettings.UpdateListener, SelectAndEditProfileSettingsPage.ProfileEditPanel< StyleProfile< SelectionCreatorSettings > >
@@ -41,10 +46,10 @@ public class SelectionCreatorConfigPage extends SelectAndEditProfileSettingsPage
 
 		private final SelectionCreatorSettingsPanel styleEditorPanel;
 
-		public SelectionCreatorSettingsEditPanel( final SelectionCreatorSettings initialStyle )
+		public SelectionCreatorSettingsEditPanel( final SelectionCreatorSettings initialStyle, final Function< String, String > evaluator )
 		{
 			editedStyle = initialStyle.copy( "Edited" );
-			styleEditorPanel = new SelectionCreatorSettingsPanel( editedStyle );
+			styleEditorPanel = new SelectionCreatorSettingsPanel( editedStyle, evaluator );
 			modificationListeners = new Listeners.SynchronizedList<>();
 			editedStyle.updateListeners().add( this );
 		}
@@ -98,7 +103,7 @@ public class SelectionCreatorConfigPage extends SelectAndEditProfileSettingsPage
 		final SelectionCreatorSettingsManager styleManager = new SelectionCreatorSettingsManager();
 
 		final SettingsPanel settings = new SettingsPanel();
-		settings.addPage( new SelectionCreatorConfigPage( "Selection creator parser", styleManager ) );
+		settings.addPage( new SelectionCreatorConfigPage( "Selection creator parser", styleManager, ( str ) -> str  ) );
 
 		final JDialog dialog = new JDialog( ( Frame ) null, "Settings" );
 		dialog.getContentPane().add( settings, BorderLayout.CENTER );

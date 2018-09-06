@@ -9,56 +9,49 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 import javax.swing.JDialog;
 import javax.swing.WindowConstants;
 
 import org.mastodon.app.ui.ViewMenuBuilder.MenuItem;
 import org.mastodon.app.ui.settings.SettingsPanel;
+import org.mastodon.graph.GraphIdBimap;
+import org.mastodon.model.SelectionModel;
 import org.mastodon.plugin.MastodonPlugin;
 import org.mastodon.plugin.MastodonPluginAppModel;
 import org.mastodon.revised.mamut.KeyConfigContexts;
 import org.mastodon.revised.mamut.MamutMenuBuilder;
+import org.mastodon.revised.model.feature.FeatureModel;
+import org.mastodon.revised.model.mamut.Link;
+import org.mastodon.revised.model.mamut.Model;
+import org.mastodon.revised.model.mamut.ModelGraph;
+import org.mastodon.revised.model.mamut.Spot;
+import org.mastodon.revised.model.tag.TagSetModel;
 import org.mastodon.revised.ui.keymap.CommandDescriptionProvider;
 import org.mastodon.revised.ui.keymap.CommandDescriptions;
+import org.mastodon.revised.ui.selection.creator.parser.SelectionParser;
 import org.mastodon.revised.ui.selection.creator.parser.plugin.settings.SelectionCreatorConfigPage;
 import org.mastodon.revised.ui.selection.creator.parser.plugin.settings.SelectionCreatorSettingsManager;
-import org.scijava.Context;
-import org.scijava.log.LogService;
-import org.scijava.log.Logger;
-import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
 import org.scijava.ui.behaviour.util.AbstractNamedAction;
 import org.scijava.ui.behaviour.util.Actions;
-
-import net.imagej.ops.OpService;
 
 @Plugin( type = SelectionParserPlugin.class )
 public class SelectionParserPlugin implements MastodonPlugin
 {
 
 	public static final String[] MENU_PATH = new String[] { "Plugins" };
-	private static final String SHOW_SELECTION_CREATOR_WINDOW = "semi-automatic tracking";
+
+	private static final String SHOW_SELECTION_CREATOR_WINDOW = "selection-creator dialog";
+
 	private static final String[] SHOW_SELECTION_CREATOR_WINDOW_KEYS = new String[] { "not mapped" };
-
-	@Parameter
-	private OpService ops;
-
-	@Parameter( required = false )
-	private Logger log;
-
-	@Parameter
-	private LogService logService;
-
-	private MastodonPluginAppModel appModel;
 
 	private static Map< String, String > menuTexts = new HashMap<>();
 
 	private JDialog dialog;
 
-	public SelectionParserPlugin()
-	{
-	}
+	private SelectionParser< Spot, Link > selectionParser;
 
 	static
 	{
@@ -116,20 +109,33 @@ public class SelectionParserPlugin implements MastodonPlugin
 	@Override
 	public void setAppModel( final MastodonPluginAppModel appModel )
 	{
-		this.appModel = appModel;
+		final Model model = appModel.getAppModel().getModel();
+		final ModelGraph graph = model.getGraph();
+		final GraphIdBimap< Spot, Link > graphIdBimap = model.getGraphIdBimap();
+		final TagSetModel< Spot, Link > tagSetModel = model.getTagSetModel();
+		final FeatureModel featureModel = model.getFeatureModel();
+		final SelectionModel< Spot, Link > selectionModel = appModel.getAppModel().getSelectionModel();
+		selectionParser = new SelectionParser<>( graph, graphIdBimap, tagSetModel, featureModel, selectionModel );
 
-		final Context context = appModel.getWindowManager().getContext();
-		final String prefKey = "Mastodon selection creator";
+		final Function< String, String > evaluator = ( expression ) -> {
+			final boolean ok = selectionParser.parse( expression );
+			final String message = ok
+					? "Evaluation successful. Selection has now " + selectionModel.getSelectedVertices().size()
+							+ " spots and " + selectionModel.getSelectedEdges().size() + " edges."
+					: "Evaluation failed. " + selectionParser.getErrorMessage();
+			return message;
+		};
 
 		final SelectionCreatorSettingsManager styleManager = new SelectionCreatorSettingsManager();
-		final SelectionCreatorConfigPage page = new SelectionCreatorConfigPage( "Settings", styleManager );
+		final SelectionCreatorConfigPage page = new SelectionCreatorConfigPage(
+				"Settings", styleManager, evaluator );
 		page.apply();
 		final SettingsPanel settings = new SettingsPanel();
 		settings.addPage( page );
 
 		dialog = new JDialog( ( Frame ) null, "Semi-automatic tracker settings" );
 		dialog.getContentPane().add( settings, BorderLayout.CENTER );
-		settings.onOk( () -> dialog.setVisible( false )  );
+		settings.onOk( () -> dialog.setVisible( false ) );
 		settings.onCancel( () -> dialog.setVisible( false ) );
 
 		dialog.setDefaultCloseOperation( WindowConstants.DO_NOTHING_ON_CLOSE );
@@ -142,19 +148,21 @@ public class SelectionParserPlugin implements MastodonPlugin
 			}
 		} );
 		dialog.pack();
+
 	}
 
-	private final AbstractNamedAction toggleSelectionCreatorWindowVisibility = new AbstractNamedAction( SHOW_SELECTION_CREATOR_WINDOW )
-	{
+	private final AbstractNamedAction toggleSelectionCreatorWindowVisibility =
+			new AbstractNamedAction( SHOW_SELECTION_CREATOR_WINDOW )
+			{
 
-		private static final long serialVersionUID = 1L;
+				private static final long serialVersionUID = 1L;
 
-		@Override
-		public void actionPerformed( final ActionEvent e )
-		{
-			if ( null == dialog )
-				return;
-			dialog.setVisible( !dialog.isVisible() );
-		}
-	};
+				@Override
+				public void actionPerformed( final ActionEvent e )
+				{
+					if ( null == dialog )
+						return;
+					dialog.setVisible( !dialog.isVisible() );
+				}
+			};
 }

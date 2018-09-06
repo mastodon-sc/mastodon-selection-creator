@@ -8,6 +8,7 @@ import java.awt.Insets;
 import java.awt.KeyboardFocusManager;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.util.function.Function;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -29,7 +30,9 @@ public class SelectionCreatorSettingsPanel extends JPanel
 
 	private final JTextPane textPaneExpression;
 
-	public SelectionCreatorSettingsPanel( final SelectionCreatorSettings settings )
+	private final JTextArea textAreaMessage;
+
+	public SelectionCreatorSettingsPanel( final SelectionCreatorSettings settings, final Function< String, String > evaluator )
 	{
 		this.settings = settings;
 
@@ -84,7 +87,6 @@ public class SelectionCreatorSettingsPanel extends JPanel
 		add( lblDescription, gbc_lblDescription );
 
 		this.textPaneDescription = new JTextPane();
-		textPaneDescription.setOpaque( false );
 		textPaneDescription.setEditable( true );
 		tabTransferFocus( textPaneDescription );
 		final GridBagConstraints gbc_editorPaneDescription = new GridBagConstraints();
@@ -98,13 +100,15 @@ public class SelectionCreatorSettingsPanel extends JPanel
 		final JSeparator separator = new JSeparator();
 		final GridBagConstraints gbc_separator = new GridBagConstraints();
 		gbc_separator.insets = new Insets( 0, 0, 5, 0 );
-		gbc_separator.fill = GridBagConstraints.HORIZONTAL;
+		gbc_separator.fill = GridBagConstraints.BOTH;
 		gbc_separator.gridwidth = 2;
 		gbc_separator.gridx = 0;
 		gbc_separator.gridy = 4;
 		add( separator, gbc_separator );
 
-		final JTextArea textAreaMessage = new JTextArea();
+		textAreaMessage = new JTextArea();
+		textAreaMessage.setWrapStyleWord(true);
+		textAreaMessage.setLineWrap(true);
 		textAreaMessage.setOpaque( false );
 		textAreaMessage.setEditable( false );
 		final GridBagConstraints gbc_textAreaMessage = new GridBagConstraints();
@@ -115,15 +119,17 @@ public class SelectionCreatorSettingsPanel extends JPanel
 		add( textAreaMessage, gbc_textAreaMessage );
 
 		final JButton btnRun = new JButton( "Run" );
+		btnRun.addActionListener( (e) -> evaluate(evaluator) );
 		final GridBagConstraints gbc_btnRun = new GridBagConstraints();
+		gbc_btnRun.anchor = GridBagConstraints.SOUTH;
 		gbc_btnRun.gridx = 1;
 		gbc_btnRun.gridy = 5;
 		add( btnRun, gbc_btnRun );
 
-		setPreferredSize( new Dimension( 400, 200 ) );
+		setPreferredSize( new Dimension(482, 341) );
 
 		/*
-		 * Update display on settings changes.
+		 * Listeners and co.
 		 */
 
 		settings.updateListeners().add( () -> updateFromSettings() );
@@ -131,6 +137,24 @@ public class SelectionCreatorSettingsPanel extends JPanel
 		textPaneExpression.addFocusListener( focusListener );
 		textPaneDescription.addFocusListener( focusListener );
 		updateFromSettings();
+	}
+
+	private void evaluate( final Function< String, String > evaluator )
+	{
+		new Thread( "SelectionCreatorEvaluationThread" )
+		{
+			@Override
+			public void run() {
+				final EverythingDisablerAndReenabler reenabler =
+						new EverythingDisablerAndReenabler( SelectionCreatorSettingsPanel.this, new Class[] { JLabel.class } );
+				reenabler.disable();
+
+				commitToSettings();
+				final String message = evaluator.apply( settings.expression() );
+				textAreaMessage.setText( message );
+				reenabler.reenable();
+			};
+		}.start();
 	}
 
 	private void commitToSettings()
