@@ -73,7 +73,7 @@ public class SelectionCreatorSettingsManager extends AbstractStyleManager< Selec
 		try
 		{
 			final FileReader input = new FileReader( filename );
-			final Yaml yaml = new Yaml();
+			final Yaml yaml = SelectionCreatorSettingsIO.createYaml();
 			final Iterable< Object > objs = yaml.loadAll( input );
 			String defaultStyleName = null;
 			for ( final Object obj : objs )
@@ -121,7 +121,7 @@ public class SelectionCreatorSettingsManager extends AbstractStyleManager< Selec
 		{
 			mkdirs( filename );
 			final FileWriter output = new FileWriter( filename );
-			final Yaml yaml = new Yaml();
+			final Yaml yaml = SelectionCreatorSettingsIO.createYaml();
 			final ArrayList< Object > objects = new ArrayList<>();
 			objects.add( defaultStyle.getName() );
 			objects.addAll( userStyles );
