@@ -556,7 +556,10 @@ public class SelectionEvaluator< V extends Vertex< E >, E extends Edge< V > > ex
 				break;
 			}
 		if ( null == tagSet )
-			return new EmptyTagSetVariable();
+		{
+			errorMessage = "The tag-set '" + tagSetName + "' is unknown to the tag-set model.";
+			return null;
+		}
 
 		final ObjTagMap< V, Tag > vertexTags = tagSetModel.getVertexTags().tags( tagSet );
 		final ObjTagMap< E, Tag > edgeTags = tagSetModel.getEdgeTags().tags( tagSet );
