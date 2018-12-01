@@ -16,13 +16,13 @@ import javax.swing.WindowConstants;
 
 import org.mastodon.app.ui.ViewMenuBuilder.MenuItem;
 import org.mastodon.app.ui.settings.SettingsPanel;
+import org.mastodon.feature.FeatureModel;
 import org.mastodon.graph.GraphIdBimap;
 import org.mastodon.model.SelectionModel;
 import org.mastodon.plugin.MastodonPlugin;
 import org.mastodon.plugin.MastodonPluginAppModel;
 import org.mastodon.revised.mamut.KeyConfigContexts;
 import org.mastodon.revised.mamut.MamutMenuBuilder;
-import org.mastodon.revised.model.feature.FeatureModel;
 import org.mastodon.revised.model.mamut.Link;
 import org.mastodon.revised.model.mamut.Model;
 import org.mastodon.revised.model.mamut.ModelGraph;

@@ -5,21 +5,23 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.mastodon.feature.Feature;
+import org.mastodon.feature.FeatureModel;
+import org.mastodon.feature.FeatureSpec;
 import org.mastodon.graph.GraphIdBimap;
 import org.mastodon.graph.object.ObjectGraph;
 import org.mastodon.graph.object.ObjectVertex;
+import org.mastodon.mamut.feature.MamutFeatureComputerService;
+import org.mastodon.mamut.feature.SpotGaussFilteredIntensityFeature;
 import org.mastodon.model.SelectionModel;
-import org.mastodon.revised.mamut.MamutProject;
-import org.mastodon.revised.mamut.MamutProjectIO;
+import org.mastodon.project.MamutProject;
+import org.mastodon.project.MamutProjectIO;
 import org.mastodon.revised.mamut.WindowManager;
-import org.mastodon.revised.mamut.feature.MamutFeatureComputer;
-import org.mastodon.revised.mamut.feature.MamutFeatureComputerService;
-import org.mastodon.revised.mamut.feature.SpotGaussFilteredIntensityComputer;
-import org.mastodon.revised.model.feature.FeatureModel;
 import org.mastodon.revised.model.mamut.Link;
 import org.mastodon.revised.model.mamut.Model;
 import org.mastodon.revised.model.mamut.ModelGraph;
@@ -28,7 +30,6 @@ import org.mastodon.revised.model.tag.TagSetModel;
 import org.mastodon.revised.model.tag.TagSetStructure;
 import org.mastodon.revised.model.tag.TagSetStructure.Tag;
 import org.mastodon.revised.model.tag.TagSetStructure.TagSet;
-import org.mastodon.revised.ui.ProgressListener;
 import org.scijava.Context;
 import org.scijava.parse.SyntaxTree;
 
@@ -40,7 +41,7 @@ public class SelectionCreatorParserExample
 	public static void main( final String[] args ) throws IOException, SpimDataException
 	{
 		final Context context = new Context();
-		final MamutProject project = new MamutProjectIO().load( "../TrackMate3/samples/mamutproject" );
+		final MamutProject project = new MamutProjectIO().load( "../TrackMate3/samples/mamutproject.mastodon" );
 		final WindowManager windowManager = new WindowManager( context );
 		windowManager.getProjectManager().open( project );
 		final Model model = windowManager.getAppModel().getModel();
@@ -73,11 +74,15 @@ public class SelectionCreatorParserExample
 
 		// Compute feature values.
 		final MamutFeatureComputerService service = context.getService( MamutFeatureComputerService.class );
-		final Collection< MamutFeatureComputer > featureComputers = service.getFeatureComputers();
-		final Set< MamutFeatureComputer > fcs = featureComputers.stream()
-				.filter( ( mfc ) -> mfc.getKey() != SpotGaussFilteredIntensityComputer.KEY )
+		final Collection< FeatureSpec< ?, ? > > featureComputers = service.getFeatureSpecs();
+		final Set< FeatureSpec< ?, ? > > fcs = featureComputers.stream()
+				.filter( ( mfc ) -> mfc.getKey() != SpotGaussFilteredIntensityFeature.KEY )
 				.collect( Collectors.toSet() );
-		service.compute( model, featureModel, fcs, voidLogger() );
+		final Map< FeatureSpec< ?, ? >, Feature< ? > > map = service.compute( fcs );
+		featureModel.pauseListeners();
+		for ( final Feature< ? > feature : map.values() )
+			featureModel.declareFeature( feature );
+		featureModel.resumeListeners();
 
 		// Create random selection of vertices.
 		selectionModel.clearSelection();
@@ -173,8 +178,8 @@ public class SelectionCreatorParserExample
 		if ( ok )
 		{
 			System.out.println( "Parsing succesful." );
-			windowManager.createTable( false );
-			windowManager.createTable( true );
+//			windowManager.createTable( false );
+//			windowManager.createTable( true );
 		}
 		else
 		{
@@ -198,24 +203,5 @@ public class SelectionCreatorParserExample
 			graph.addEdge( source, target );
 		}
 		return source;
-	}
-
-	private static ProgressListener voidLogger()
-	{
-		return new ProgressListener()
-		{
-
-			@Override
-			public void showStatus( final String string )
-			{}
-
-			@Override
-			public void showProgress( final int current, final int total )
-			{}
-
-			@Override
-			public void clearStatus()
-			{}
-		};
 	}
 }

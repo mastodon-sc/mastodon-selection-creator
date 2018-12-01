@@ -5,7 +5,9 @@ import java.util.function.DoublePredicate;
 
 import org.mastodon.RefPool;
 import org.mastodon.collection.RefCollection;
-import org.mastodon.revised.model.feature.FeatureProjection;
+import org.mastodon.feature.FeatureProjection;
+import org.mastodon.feature.FeatureProjectionKey;
+import org.mastodon.feature.FeatureSpec;
 
 public abstract class AbstractFeatureVariable< O > implements FeatureVariable< O >
 {
@@ -16,13 +18,18 @@ public abstract class AbstractFeatureVariable< O > implements FeatureVariable< O
 
 	protected final RefPool< O > idMap;
 
-	private final String featureKey;
+	private final FeatureSpec< ?, ? > featureSpec;
 
-	private final String projectionKey;
+	private final FeatureProjectionKey projectionKey;
 
-	protected AbstractFeatureVariable( final String featureKey, final String projectionKey, final FeatureProjection< O > projection, final RefCollection< O > collection, final RefPool< O > idMap )
+	protected AbstractFeatureVariable(
+			final FeatureSpec< ?, ? > featureSpec,
+			final FeatureProjectionKey projectionKey,
+			final FeatureProjection< O > projection,
+			final RefCollection< O > collection,
+			final RefPool< O > idMap )
 	{
-		this.featureKey = featureKey;
+		this.featureSpec = featureSpec;
 		this.projectionKey = projectionKey;
 		this.projection = projection;
 		this.collection = collection;
@@ -79,7 +86,6 @@ public abstract class AbstractFeatureVariable< O > implements FeatureVariable< O
 	@Override
 	public String toString()
 	{
-		return "Feature( " + featureKey + " \u2192 " + projectionKey + ", " + collection.size() + " )";
+		return "Feature( " + featureSpec.getKey() + " \u2192 " + projectionKey + ", " + collection.size() + " )";
 	}
-
 }

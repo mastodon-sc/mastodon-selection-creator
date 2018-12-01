@@ -4,15 +4,22 @@ import java.util.BitSet;
 
 import org.mastodon.RefPool;
 import org.mastodon.collection.RefCollection;
+import org.mastodon.feature.FeatureProjection;
+import org.mastodon.feature.FeatureProjectionKey;
+import org.mastodon.feature.FeatureSpec;
 import org.mastodon.graph.Edge;
-import org.mastodon.revised.model.feature.FeatureProjection;
 
 public class EdgeFeatureVariable< E extends Edge< ? > > extends AbstractFeatureVariable< E >
 {
 
-	public EdgeFeatureVariable( final String featureKey, final String projectionKey, final FeatureProjection< E > projection, final RefCollection< E > collection, final RefPool< E > idMap )
+	public EdgeFeatureVariable(
+			final FeatureSpec< ?, ? > featureSpec,
+			final FeatureProjectionKey projectionKey,
+			final FeatureProjection< E > projection,
+			final RefCollection< E > collection,
+			final RefPool< E > idMap )
 	{
-		super( featureKey, projectionKey, projection, collection, idMap );
+		super( featureSpec, projectionKey, projection, collection, idMap );
 	}
 
 	@Override
@@ -26,5 +33,4 @@ public class EdgeFeatureVariable< E extends Edge< ? > > extends AbstractFeatureV
 	{
 		return "Edge" + super.toString();
 	}
-
 }

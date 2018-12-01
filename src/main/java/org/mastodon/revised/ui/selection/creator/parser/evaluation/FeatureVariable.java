@@ -1,12 +1,14 @@
 package org.mastodon.revised.ui.selection.creator.parser.evaluation;
 
+import org.mastodon.feature.Feature;
+import org.mastodon.feature.FeatureModel;
+import org.mastodon.feature.FeatureProjection;
+import org.mastodon.feature.FeatureProjectionKey;
+import org.mastodon.feature.FeatureSpec;
 import org.mastodon.graph.Edge;
 import org.mastodon.graph.GraphIdBimap;
 import org.mastodon.graph.ReadOnlyGraph;
 import org.mastodon.graph.Vertex;
-import org.mastodon.revised.model.feature.Feature;
-import org.mastodon.revised.model.feature.FeatureModel;
-import org.mastodon.revised.model.feature.FeatureProjection;
 
 public interface FeatureVariable< O >
 {
@@ -17,29 +19,29 @@ public interface FeatureVariable< O >
 	}
 
 	@SuppressWarnings( "unchecked" )
-	public static < V extends Vertex< E >, E extends Edge< V > > FeatureVariable< V > vertexFeature( final ReadOnlyGraph< V, E > graph, final GraphIdBimap< V, E > idmap, final FeatureModel featureModel, final String featureKey, final String projectionKey )
+	public static < V extends Vertex< E >, E extends Edge< V > > FeatureVariable< V > vertexFeature( final ReadOnlyGraph< V, E > graph, final GraphIdBimap< V, E > idmap, final FeatureModel featureModel, final FeatureSpec< ?, ? > featureSpec, final FeatureProjectionKey projectionKey )
 	{
-		final Feature< ?, ? > feature = featureModel.getFeature( featureKey );
+		if ( !featureSpec.getTargetClass().isAssignableFrom( graph.vertexRef().getClass() ) )
+			return emptyFeature();
+		final Feature< ? > feature = featureModel.getFeature( featureSpec );
 		if ( null == feature )
 			return emptyFeature();
-		if ( !featureModel.getFeatureSet( graph.vertexRef().getClass() ).contains( feature ) )
-			return emptyFeature();
 
-		final FeatureProjection< ? > projection = feature.getProjections().get( projectionKey );
-		return new VertexFeatureVariable< V >( featureKey, projectionKey, ( FeatureProjection< V > ) projection, graph.vertices(), idmap.vertexIdBimap() );
+		final FeatureProjection< ? > projection = feature.project( projectionKey );
+		return new VertexFeatureVariable< V >( featureSpec, projectionKey, ( FeatureProjection< V > ) projection, graph.vertices(), idmap.vertexIdBimap() );
 	}
 
 	@SuppressWarnings( "unchecked" )
-	public static < V extends Vertex< E >, E extends Edge< V > > FeatureVariable< E > edgeFeature( final ReadOnlyGraph< V, E > graph, final GraphIdBimap< V, E > idmap, final FeatureModel featureModel, final String featureKey, final String projectionKey )
+	public static < V extends Vertex< E >, E extends Edge< V > > FeatureVariable< E > edgeFeature( final ReadOnlyGraph< V, E > graph, final GraphIdBimap< V, E > idmap, final FeatureModel featureModel, final FeatureSpec< ?, ? > featureSpec, final FeatureProjectionKey projectionKey )
 	{
-		final Feature< ?, ? > feature = featureModel.getFeature( featureKey );
+		if ( !featureSpec.getTargetClass().isAssignableFrom( graph.edgeRef().getClass() ) )
+			return emptyFeature();
+		final Feature< ? > feature = featureModel.getFeature( featureSpec );
 		if ( null == feature )
 			return emptyFeature();
-		if ( !featureModel.getFeatureSet( graph.edgeRef().getClass() ).contains( feature ) )
-			return emptyFeature();
 
-		final FeatureProjection< ? > projection = feature.getProjections().get( projectionKey );
-		return new EdgeFeatureVariable< E >( featureKey, projectionKey, ( FeatureProjection< E > ) projection, graph.edges(), idmap.edgeIdBimap() );
+		final FeatureProjection< ? > projection = feature.project( projectionKey );
+		return new EdgeFeatureVariable<>( featureSpec, projectionKey, ( FeatureProjection< E > ) projection, graph.edges(), idmap.edgeIdBimap() );
 	}
 
 	public SelectionVariable notEqual( double value );

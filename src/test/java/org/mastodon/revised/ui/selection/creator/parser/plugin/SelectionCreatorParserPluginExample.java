@@ -6,9 +6,9 @@ import java.util.Locale;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
+import org.mastodon.project.MamutProject;
+import org.mastodon.project.MamutProjectIO;
 import org.mastodon.revised.mamut.MainWindow;
-import org.mastodon.revised.mamut.MamutProject;
-import org.mastodon.revised.mamut.MamutProjectIO;
 import org.mastodon.revised.mamut.WindowManager;
 import org.scijava.Context;
 
@@ -24,7 +24,7 @@ public class SelectionCreatorParserPluginExample
 		Locale.setDefault( Locale.ROOT );
 		System.setProperty( "apple.laf.useScreenMenuBar", "true" );
 
-		final String projectPath = "../TrackMate3/samples/mamutproject/";
+		final String projectPath = "../TrackMate3/samples/mamutproject.mastodon";
 		final MamutProject project = new MamutProjectIO().load( projectPath );
 
 		final Context context = new Context();

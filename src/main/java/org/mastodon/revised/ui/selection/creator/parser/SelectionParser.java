@@ -1,11 +1,11 @@
 package org.mastodon.revised.ui.selection.creator.parser;
 
+import org.mastodon.feature.FeatureModel;
 import org.mastodon.graph.Edge;
 import org.mastodon.graph.GraphIdBimap;
 import org.mastodon.graph.ReadOnlyGraph;
 import org.mastodon.graph.Vertex;
 import org.mastodon.model.SelectionModel;
-import org.mastodon.revised.model.feature.FeatureModel;
 import org.mastodon.revised.model.tag.TagSetModel;
 import org.mastodon.revised.ui.selection.creator.parser.evaluation.SelectionEvaluator;
 import org.mastodon.revised.ui.selection.creator.parser.evaluation.SelectionVariable;

@@ -2,18 +2,23 @@ package org.mastodon.revised.ui.selection.creator.parser.evaluation;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import org.mastodon.feature.Feature;
+import org.mastodon.feature.FeatureModel;
+import org.mastodon.feature.FeatureProjection;
+import org.mastodon.feature.FeatureProjectionKey;
+import org.mastodon.feature.FeatureSpec;
 import org.mastodon.graph.Edge;
 import org.mastodon.graph.GraphIdBimap;
 import org.mastodon.graph.ReadOnlyGraph;
 import org.mastodon.graph.Vertex;
 import org.mastodon.model.SelectionModel;
-import org.mastodon.revised.model.feature.Feature;
-import org.mastodon.revised.model.feature.FeatureModel;
 import org.mastodon.revised.model.tag.ObjTagMap;
 import org.mastodon.revised.model.tag.TagSetModel;
 import org.mastodon.revised.model.tag.TagSetStructure.Tag;
@@ -462,39 +467,63 @@ public class SelectionEvaluator< V extends Vertex< E >, E extends Edge< V > > ex
 				return null;
 			}
 
+			// Find a feature with this key in the model.
 			final String featureKey = ( String ) list.get( 0 );
-			final String projectionKey = ( String ) list.get( 1 );
-
-			final Feature< ?, ? > feature = featureModel.getFeature( featureKey );
-			if ( null == feature )
+			final Collection< FeatureSpec< ?, ? > > featureSpecs = featureModel.getFeatureSpecs();
+			FeatureSpec< ?, ? > featureSpec = null;
+			for ( final FeatureSpec< ?, ? > fs : featureSpecs )
+			{
+				if ( fs.getKey().equals( featureKey ) )
+				{
+					featureSpec = fs;
+					break;
+				}
+			}
+			if ( null == featureSpec )
 			{
 				errorMessage = "Calling " + name + ": The feature '" + featureKey + "' is unknown to the feature model.";
 				return null;
 			}
-			if ( null == feature.getProjections().get( projectionKey ) )
+			final Feature< ? > feature = featureModel.getFeature( featureSpec );
+
+			// Find a feature projection with this key in the feature.
+			final String projectionKey = ( String ) list.get( 1 );
+			final Set< ? > projectionObjs = feature.projections();
+			FeatureProjectionKey featureProjectionKey = null;
+			for ( final Object projectionObj : projectionObjs )
 			{
-				errorMessage = "Calling " + name + ": The projection key '" + projectionKey + "' is unknown to the feature '" + featureKey + "'.";
+				final FeatureProjection< ? > featureProjection = ( FeatureProjection< ? > ) projectionObj;
+				if ( featureProjection.getKey().toString().equals( projectionKey ) )
+				{
+					featureProjectionKey = featureProjection.getKey();
+					break;
+				}
+			}
+
+			if ( null == feature.project( featureProjectionKey ) )
+			{
+				errorMessage = "Calling " + name + ": The projection key '" + projectionKey + "' is unknown to the feature '" + featureSpec.getKey() + "'.";
 				return null;
 			}
 
 			final FeatureVariable< ? > fv;
 			if ( name.toLowerCase().trim().equals( "vertexfeature" ) )
 			{
-				if ( !featureModel.getFeatureSet( graph.vertexRef().getClass() ).contains( feature ) )
+				if ( !featureSpec.getTargetClass().isAssignableFrom( graph.vertexRef().getClass() ) )
 				{
-					errorMessage = "Calling " + name + ": The feature '" + featureKey + "' is not defined for vertices.";
+					errorMessage = "Calling " + name + ": The feature '" + featureSpec.getKey() + "' is not defined for vertices.";
 					return null;
 				}
-				fv = FeatureVariable.vertexFeature( graph, idmap, featureModel, featureKey, projectionKey );
+				fv = FeatureVariable.vertexFeature( graph, idmap, featureModel, featureSpec, featureProjectionKey );
 			}
 			else
 			{
-				if ( !featureModel.getFeatureSet( graph.edgeRef().getClass() ).contains( feature ) )
+				if ( !featureSpec.getTargetClass().isAssignableFrom( graph.edgeRef().getClass() ) )
 				{
-					errorMessage = "Calling " + name + ": The feature '" + featureKey + "' is not defined for edges.";
+					errorMessage = "Calling " + name + ": The feature '" + featureSpec.getKey() + "' is not defined for edges.";
 					return null;
 				}
-				fv = FeatureVariable.edgeFeature( graph, idmap, featureModel, featureKey, projectionKey );
+				fv = FeatureVariable.edgeFeature( graph, idmap, featureModel, featureSpec, featureProjectionKey );
 			}
 			return fv;
 		}
