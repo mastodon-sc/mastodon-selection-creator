@@ -128,12 +128,12 @@ public class SelectionParserPlugin implements MastodonPlugin
 
 		final SelectionCreatorSettingsManager styleManager = new SelectionCreatorSettingsManager();
 		final SelectionCreatorConfigPage page = new SelectionCreatorConfigPage(
-				"Settings", styleManager, evaluator );
+				"Selection creator parser", styleManager, evaluator );
 		page.apply();
 		final SettingsPanel settings = new SettingsPanel();
 		settings.addPage( page );
 
-		dialog = new JDialog( ( Frame ) null, "Semi-automatic tracker settings" );
+		dialog = new JDialog( ( Frame ) null, "Mastodon selection creator" );
 		dialog.getContentPane().add( settings, BorderLayout.CENTER );
 		settings.onOk( () -> dialog.setVisible( false ) );
 		settings.onCancel( () -> dialog.setVisible( false ) );
