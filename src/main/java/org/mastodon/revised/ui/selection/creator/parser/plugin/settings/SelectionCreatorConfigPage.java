@@ -24,8 +24,14 @@ public class SelectionCreatorConfigPage extends SelectAndEditProfileSettingsPage
 {
 	/**
 	 * @param treePath
-	 * 		path of this page in the settings tree.
+	 *                                            path of this page in the settings
+	 *                                            tree.
+	 * @param selectionCreatorSettingsManager
+	 *                                            the selection expression manager.
 	 * @param evaluator
+	 *                                            the expression evaluator: takes a
+	 *                                            string (the expression) and
+	 *                                            returns a message to the user.
 	 */
 	public SelectionCreatorConfigPage(
 			final String treePath,
