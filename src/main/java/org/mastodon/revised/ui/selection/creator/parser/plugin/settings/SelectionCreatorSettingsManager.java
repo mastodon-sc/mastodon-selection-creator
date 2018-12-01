@@ -19,16 +19,6 @@ public class SelectionCreatorSettingsManager extends AbstractStyleManager< Selec
 
 	private static final String EXPRESSION_FILE = System.getProperty( "user.home" ) + "/.mastodon/selectioncreatorexpressions.yaml";
 
-	/**
-	 * A {@code SelectionCreatorSettings} that has the same properties as the default
-	 * RenderSettings. In contrast to defaultStyle this will always
-	 * refer to the same object, so a consumers can just use this one
-	 * SelectionCreatorSettings to listen for changes and for painting.
-	 */
-	private final SelectionCreatorSettings forwardDefaultStyle;
-
-	private final SelectionCreatorSettings.UpdateListener updateForwardDefaultListeners;
-
 	public SelectionCreatorSettingsManager()
 	{
 		this( true );
@@ -36,9 +26,6 @@ public class SelectionCreatorSettingsManager extends AbstractStyleManager< Selec
 
 	public SelectionCreatorSettingsManager( final boolean loadStyles )
 	{
-		forwardDefaultStyle = SelectionCreatorSettings.EXAMPLES.get( 0 ).copy();
-		updateForwardDefaultListeners = () -> forwardDefaultStyle.set( defaultStyle );
-		defaultStyle.updateListeners().add( updateForwardDefaultListeners );
 		if ( loadStyles )
 			loadStyles();
 	}
@@ -46,19 +33,7 @@ public class SelectionCreatorSettingsManager extends AbstractStyleManager< Selec
 	@Override
 	public synchronized void setDefaultStyle( final SelectionCreatorSettings settings )
 	{
-		defaultStyle.updateListeners().remove( updateForwardDefaultListeners );
 		defaultStyle = settings;
-		forwardDefaultStyle.set( defaultStyle );
-		defaultStyle.updateListeners().add( updateForwardDefaultListeners );
-	}
-
-	/**
-	 * Returns a final {@link SelectionCreatorSettings} instance that always has the same
-	 * properties as the default style.
-	 */
-	public SelectionCreatorSettings getForwardDefaultStyle()
-	{
-		return forwardDefaultStyle;
 	}
 
 	public void loadStyles()
