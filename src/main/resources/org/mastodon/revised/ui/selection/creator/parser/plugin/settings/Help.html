@@ -1,0 +1,110 @@
+<!doctype html>
+<html>
+<head>
+<meta charset='UTF-8'><meta name='viewport' content='width=device-width initial-scale=1'>
+<title>Help</title></head>
+<body><h1>Selection creator parser.</h1>
+<p>This parser allows for entering <em>expressions</em> that will be evaluated into a <em>Mastodon selection</em>. </p>
+<p>Expression follows a syntax similar to boolean equations, with several special functions to read numerical feature values from objects, their tags, or to change (morph) a selection on vertices to edges, etc. It is more powerful and flexible than a GUI to create selection, as the expression can cover any possible combination of criteria.</p>
+<p>Of course, for an expression that includes feature values or tags to work, they must be computed or specified before. The parser will return a hopefully explanatory error message when this is not the case.</p>
+<h1>Examples.</h1>
+<p>Expressions are strings where a small language can be used to combine conditions and filters on vertices and edges.</p>
+<figure><table>
+<thead>
+<tr><th>Expression</th><th>Meaning</th></tr></thead>
+<tbody><tr><td><code>vertexFeature(&#39;Spot position&#39;, &#39;X&#39;) &gt; 100.</code></td><td>Get all the vertices whose X position is strictly greater than 100. The specified feature value must be computed prior to parsing for this to return a useful selection.</td></tr><tr><td><code>tagSet(&#39;Reviewed by&#39;) == &#39;JY&#39;</code></td><td>Return the vertices and edges tagged by &#39;JY&#39; in the tag-set &#39;Reviewed by&#39;. Of course, both specified tag-set and tag must exist.</td></tr><tr><td><code>vertexFeature(&#39;Spot N links&#39;) == 3 &amp; vertexFeature(&#39;Spot frame&#39;) == 25</code></td><td>Get the vertices that are in the frame 25 AND have 3 edges.</td></tr><tr><td><code>vertexFeature(&#39;Spot N links&#39;) == 3 | vertexFeature(&#39;Spot frame&#39;) == 25</code></td><td>Get the vertices that have 3 edges plus the vertices in the frame 25.</td></tr><tr><td><code>( vertexFeature(&#39;Spot N links&#39;) == 3 ) + ( vertexFeature(&#39;Spot frame&#39;) == 25 )</code></td><td>Get the vertices that have 3 edges plus the vertices in the frame 25. Same as above, the &#39;+&#39; sign as the same meaning that &#39;|&#39;, but different priority so we have to add brackets to avoid errors.</td></tr><tr><td><code>morph(      ( vertexFeature(&#39;Spot N links&#39;) == 3 &amp; vertexFeature(&#39;Spot frame&#39;) == 14 ),      (&#39;toVertex&#39;, &#39;outgoingEdges&#39;) )</code></td><td>Get the vertices of the frame 14 that have 3 edges, and return them plus their outgoing edges.</td></tr><tr><td><code>selection &amp; ( vertexFeature(&#39;Spot N links&#39;) == 1 )</code></td><td>Get the currently selected vertices that have exactly 1 edge.</td></tr><tr><td><code>morph(vertexSelection, &#39;incomingEdges&#39;)</code></td><td>Get the incoming edges of the vertices in the selection.</td></tr><tr><td><code>edgeSelection</code></td><td>Just return the edges of the current selection.</td></tr><tr><td><code>selection - ( vertexFeature(&#39;Spot N links&#39;) == 2 )</code></td><td>Remove from the selection all the spots that have 2 links.</td></tr><tr><td><code>vertexTagSet(&#39;Reviewed by&#39;) != &#39;JY&#39;</code></td><td>All the vertices that are NOT tagged with &#39;JY&#39; in the tag-set &#39;Reviewed by&#39;.</td></tr><tr><td><code>!vertexTagSet(&#39;Reviewed by&#39;)</code></td><td>All the vertices that are NOT tagged with any tag in the tag-set &#39;Reviewed by&#39;.</td></tr><tr><td><code>~vertexTagSet(&#39;Reviewed by&#39;)</code></td><td>All the vertices that are tagged with any tag in the tag-set &#39;Reviewed by&#39;.</td></tr></tbody>
+</table></figure>
+<h1>Documentation.</h1>
+<h2>The <code>vertexFeature</code> function.</h2>
+<p>This function returns the specified feature projection values for all the vertices in the model. You need to specify the feature key, then projection key, in between single quotes (&#39;) like this:</p>
+<p><code>vertexFeature(&#39;feature key&#39;, &#39;projection key&#39;)</code></p>
+<p>For scalar features (that have no multiplicity and only one projection ) it is not required to specify the projection key. For instance: </p>
+<p><code>vertexFeature(&#39;Spot N links&#39;)</code></p>
+<p>will work.</p>
+<p>Features with multiplicity need to specify the channel in the projection key. For instance:</p>
+<p><code>vertexFeature(&#39;Spot gaussian-filtered intensity&#39;, &#39;Mean ch0&#39;)</code></p>
+<p>The output of this function is the list of all feature values. You then need to call a boolean operation to create a selection from it. For instance, here is how to select all the spots that have exactly 2 links:</p>
+<p><code>vertexFeature(&#39;Spot N links&#39;) == 2</code></p>
+<h2>The <code>edgeFeature</code> function.</h2>
+<p>This function works exactly like <code>vertexFeature</code> but for edge features.</p>
+<h2>Comparison operators.</h2>
+<p>These two functions (<code>vertexFeature</code> and  <code>edgeFeature</code>) return a list of numerical values that you need to compare with a numerical value to get a boolean. The boolean determines whether the object (vertex or edge) will be selected (true) or not (false).</p>
+<p>All classical comparison operations are supported: </p>
+<ul>
+<li><code>&gt;</code> strictly greater than</li>
+<li><code>&lt;</code> strictly smaller than</li>
+<li><code>&gt;=</code> greater than</li>
+<li><code>&lt;=</code> smaller than</li>
+<li><code>==</code> equal to</li>
+<li><code>!=</code> different from</li>
+
+</ul>
+<h2>Boolean operators.</h2>
+<p>Once you have the boolean values, you can combine them using boolean operators. For instance:</p>
+<p><code>vertexFeature(&#39;Spot N links&#39;) == 3 &amp; vertexFeature(&#39;Spot frame&#39;) == 25</code></p>
+<p>will select the vertices that are in the frame 25 AND have 3 edges.</p>
+<p>Again, the classical ones are supported:</p>
+<ul>
+<li><code>&amp;</code> logical and. </li>
+<li><code>|</code> logical or.</li>
+<li><code>+</code> adds the two selections. Works like logical or.</li>
+<li><code>-</code> removes the right-hand term from the left-hand term. For instance <code>A - B</code> will deselect in <code>A</code> the objects that are selected in <code>B</code>.</li>
+<li><code>!</code> not operator. Inverse selection.</li>
+
+</ul>
+<p>The parser can get confused because of operator priority. If you get error messages such as this one: </p>
+<blockquote><p>Evaluation failed. Incorrect syntax: Improper use of the &#39;sub&#39; operator, not defined for SelectionVariable and VertexFeatureVariable. Use brackets to clarify operator priority.</p>
+</blockquote>
+<p>do what it says and try to use brackets to explicitly specify the operator priority.</p>
+<h2>The <code>tagSet</code> function.</h2>
+<p>This function extracts from object the tag they have within a specific tag-set. You then can write a comparison on the tag string value.</p>
+<p>For instance, lets suppose that we have a tag-set called <code>Reviewed by</code> with the following 3 tags: <code>Pavel</code>, <code>Tobias</code>, <code>JY</code>. To select all the objects (vertices or edges) that are tagged with <code>JY</code> in this tag set, you have to use the <code>==</code> operator, with the string <code>JY</code> as comparison:</p>
+<p><code>tagSet(&#39;Reviewed by&#39;) == &#39;JY&#39;</code></p>
+<p>Note that the tags and tag-sets are specified with their key within single quotes (&#39;&#39;) like for numerical features.</p>
+<p>Of course, the <code>&gt;</code> and <code>&lt;</code> etc. comparison operators do not apply here. However there are other comparisons possible:</p>
+<ul>
+<li><code>tagSet(&#39;TS&#39;) == &#39;A&#39;</code> will select all the objects (vertices and edges) in tag-set <code>TS</code> that are tagged with the tag<code>A</code>.</li>
+<li><code>tagSet(&#39;TS&#39;) != &#39;A&#39;</code> will select all the objects in tag-set <code>TS</code> that are NOT tagged with the tag<code>A</code>. Any other tags or not tags will work.</li>
+<li><code>!tagSet(&#39;TS&#39;)</code> will select all the objects in tag-set <code>TS</code> that are not tagged.</li>
+<li><code>~tagSet(&#39;TS&#39;)</code> will select all the objects in tag-set <code>TS</code> that are tagged with any tag (it is the complement of the result above).</li>
+
+</ul>
+<h3>The <code>vertexTagSet</code> and <code>edgeTagSet</code> functions.</h3>
+<p>They work exactly like their <code>tagSet</code> counterpart described in the previous paragraph, but only applies respectively to vertices or edges.</p>
+<h2>The <code>selection</code> variable.</h2>
+<p>This function simply returns the list of objects that are currently selected in Mastodon. It can then be combined with another expression using boolean functions, or morphed (see below). For instance, to remove from the selection all the spots that have 2 links, use this expression:</p>
+<p><code>selection - ( vertexFeature(&#39;Spot N links&#39;) == 2 )</code></p>
+<h2>The <code>vertexSelection</code> and  <code>edgeSelection</code> variables.</h2>
+<p>Again, they work like their <code>selection</code> counterpart, but are limited to return only the vertices, respectively the edges, of the data.</p>
+<h2>The <code>morph</code> function.</h2>
+<p>This function is a bit special as it is able to change the type of objects that are selected, based on object relations. It is with this function that you will select the edges of a spot. For instance:</p>
+<p><code>morph(vertexSelection, &#39;incomingEdges&#39;)</code></p>
+<p>will select the incoming edges of the vertices in the selection. The vertices themselves will not be included in the final selection.</p>
+<p>The <code>morph</code> function need two inputs:</p>
+<ol>
+<li>a selection (it can result from <code>tagSet(&#39;TS&#39;) == &#39;A&#39;</code>, <code>vertexFeature(&#39;F&#39;, &#39;FP&#39;) &gt; 3</code>, <code>selection</code>, ...);</li>
+<li>a list of tokens that specify how to morph the selection.</li>
+
+</ol>
+<p>In the above example, the token was <code>incomingEdges</code> which takes all the incoming edges of the vertices currently selected, and nothing else (so not the vertices initially selected).</p>
+<p>The supported morph tokens are the following ones:</p>
+<ul>
+<li><code>toVertex</code> includes the vertices currently selected in the morph result. When this token is not present, the selected vertices are removed from the target selection.</li>
+<li><code>incomingEdges</code> includes the incoming edges of the selected vertices.</li>
+<li><code>outgoingEdges</code> includes the outgoing edges of the selected vertices.</li>
+<li><code>toEdge</code>  includes the edges of the source selection in the target selection. When this morpher is not present, the selected edges are removed from the target selection.</li>
+<li><code>sourceVertex</code> includes the source vertices of the selected edges.</li>
+<li><code>targetVertex</code> includes the target vertices of the selected edges.</li>
+<li><code>wholeTrack</code> includes the whole track of selected vertices and edges.</li>
+
+</ul>
+<p>You can combine several morph tokens, if you put them as a list between brackets. For instance:</p>
+<pre><code>morph(
+     ( vertexFeature(&#39;Spot N links&#39;) == 3 &amp; vertexFeature(&#39;Spot frame&#39;) == 14 ),
+     (&#39;toVertex&#39;, &#39;outgoingEdges&#39;) )
+</code></pre>
+<p>will select the vertices of the frame 14 that have 3 edges, and return them plus their outgoing edges.</p>
+<h1>Syntax.</h1>
+<p>The capitalisation of functions and variables do not matter, but it is prettier like this.</p>
+</body>
+</html>

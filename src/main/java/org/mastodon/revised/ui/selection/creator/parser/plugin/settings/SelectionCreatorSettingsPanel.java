@@ -8,6 +8,7 @@ import java.awt.Insets;
 import java.awt.KeyboardFocusManager;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.net.URL;
 import java.util.function.Function;
 
 import javax.swing.BorderFactory;
@@ -19,10 +20,14 @@ import javax.swing.JSeparator;
 import javax.swing.JTextArea;
 import javax.swing.JTextPane;
 
+import org.mastodon.revised.ui.selection.creator.parser.plugin.SimpleHelp;
+
 public class SelectionCreatorSettingsPanel extends JPanel
 {
 
 	private static final long serialVersionUID = 1L;
+
+	private static final URL HELP_URL = SelectionCreatorSettingsPanel.class.getResource( "Help.html" );
 
 	private final SelectionCreatorSettings settings;
 
@@ -53,6 +58,7 @@ public class SelectionCreatorSettingsPanel extends JPanel
 		add( lblExpression, gbc_lblExpression );
 
 		final JButton btnHelp = new JButton( "Help" );
+		btnHelp.addActionListener( l  -> showHelp() );
 		final GridBagConstraints gbc_btnHelp = new GridBagConstraints();
 		gbc_btnHelp.insets = new Insets( 0, 0, 5, 0 );
 		gbc_btnHelp.gridx = 1;
@@ -137,6 +143,11 @@ public class SelectionCreatorSettingsPanel extends JPanel
 		textPaneExpression.addFocusListener( focusListener );
 		textPaneDescription.addFocusListener( focusListener );
 		updateFromSettings();
+	}
+
+	private void showHelp()
+	{
+		SimpleHelp.showHelp( HELP_URL, "selection creator" );
 	}
 
 	private void evaluate( final Function< String, String > evaluator )
