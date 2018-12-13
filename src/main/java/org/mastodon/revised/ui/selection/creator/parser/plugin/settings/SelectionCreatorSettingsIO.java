@@ -74,7 +74,7 @@ public class SelectionCreatorSettingsIO
 			mapping.put( "expression", s.expression() );
 			mapping.put( "description", s.description() );
 
-			final Node node = representMapping( getTag(), mapping, false );
+			final Node node = representMapping( getTag(), mapping, getDefaultFlowStyle() );
 			return node;
 		}
 	}
