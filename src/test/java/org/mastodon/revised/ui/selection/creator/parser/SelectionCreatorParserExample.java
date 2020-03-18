@@ -41,7 +41,7 @@ public class SelectionCreatorParserExample
 	public static void main( final String[] args ) throws IOException, SpimDataException
 	{
 		final Context context = new Context();
-		final MamutProject project = new MamutProjectIO().load( "../TrackMate3/samples/mamutproject.mastodon" );
+		final MamutProject project = new MamutProjectIO().load( "../mastodon/samples/mamutproject.mastodon" );
 		final WindowManager windowManager = new WindowManager( context );
 		windowManager.getProjectManager().open( project );
 		final Model model = windowManager.getAppModel().getModel();
@@ -169,7 +169,7 @@ public class SelectionCreatorParserExample
 				 */
 				"vertexFeature('Spot position', 'X') > 100. "
 		} );
-		final String expression = tests.get( 0 );
+		final String expression = tests.get( 2 );
 
 		final SelectionParser< Spot, Link > parser = new SelectionParser<>( graph, graphIdBimap, tagSetModel, featureModel, selectionModel );
 		System.out.println( "\n\n\n_________________________________" );
@@ -178,6 +178,8 @@ public class SelectionCreatorParserExample
 		if ( ok )
 		{
 			System.out.println( "Parsing succesful." );
+			System.out.println( String.format( "Found %d vertices and %d edges in the resulting selection.",
+					selectionModel.getSelectedVertices().size(), selectionModel.getSelectedEdges().size() ) );
 //			windowManager.createTable( false );
 //			windowManager.createTable( true );
 		}
