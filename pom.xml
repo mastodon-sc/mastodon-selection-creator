@@ -5,21 +5,21 @@
 	<parent>
 		<groupId>org.scijava</groupId>
 		<artifactId>pom-scijava</artifactId>
-		<version>25.0.0</version>
+		<version>28.0.0</version>
 		<relativePath />
 	</parent>
 
-	<groupId>net.trndy</groupId>
+	<groupId>org.mastodon</groupId>
 	<artifactId>mastodon-selection-creator</artifactId>
 	<version>0.0.2-SNAPSHOT</version>
 
 	<name>Mastodon selection creator</name>
 	<description>A selection creator UI for Mastodon, as a Mastodon plugin.</description>
-	<url>https://github.com/TrNdy/mastodon-selection-creator</url>
+	<url>https://github.com/mastodon-sc/mastodon-selection-creator</url>
 	<inceptionYear>2018</inceptionYear>
 	<organization>
-		<name>TrNdy</name>
-		<url>http://trndy.org</url>
+		<name>Mastodon Science</name>
+		<url>http://mastodon.org</url>
 	</organization>
 	<licenses>
 		<license>
@@ -33,7 +33,6 @@
 		<dependency>
 			<groupId>org.yaml</groupId>
 			<artifactId>snakeyaml</artifactId>
-			<version>1.23</version>
 		</dependency>
 
 		<!-- BDV deps -->
@@ -41,7 +40,6 @@
 		<dependency>
 			<groupId>sc.fiji</groupId>
 			<artifactId>bigdataviewer-core</artifactId>
-			<version>5.0.0</version>
 		</dependency>
 		<dependency>
 			<groupId>sc.fiji</groupId>
@@ -55,9 +53,9 @@
 		<!-- Mastodon deps -->
 
 		<dependency>
-			<groupId>net.trackmate</groupId>
-			<artifactId>trackmate</artifactId>
-			<version>1.0.0-beta-12</version>
+			<groupId>org.mastodon</groupId>
+			<artifactId>mastodon</artifactId>
+			<version>1.0.0-beta-14</version>
 		</dependency>
 		<dependency>
 			<groupId>org.mastodon</groupId>
@@ -104,7 +102,6 @@
 		<dependency>
 			<groupId>org.scijava</groupId>
 			<artifactId>parsington</artifactId>
-			<version>1.0.3</version>
 		</dependency>
 		<dependency>
 			<groupId>org.scijava</groupId>
@@ -128,23 +125,23 @@
 	</mailingLists>
 
 	<scm>
-		<connection>scm:git:git:github.com/TrNdy/mastodon-selection-creator</connection>
-		<developerConnection>scm:git:git@github.com:TrNdy/mastodon-selection-creator</developerConnection>
+		<connection>scm:git:git:github.com/mastodon-sc/mastodon-selection-creator</connection>
+		<developerConnection>scm:git:git@github.com:mastodon-sc/mastodon-selection-creator</developerConnection>
 		<tag>HEAD</tag>
-		<url>https://github.com/TrNdy/mastodon-selection-creator</url>
+		<url>https://github.com/mastodon-sc/mastodon-selection-creator</url>
 	</scm>
 	<issueManagement>
 		<system>GitHub</system>
-		<url>https://github.com/TrNdy/mastodon-selection-creator/issues</url>
+		<url>https://github.com/mastodon-sc/mastodon-selection-creator/issues</url>
 	</issueManagement>
 	<ciManagement>
 		<system>Travis CI</system>
-		<url>https://travis-ci.org/TrNdy/mastodon-selection-creator</url>
+		<url>https://travis-ci.com/mastodon-sc/mastodon-selection-creator</url>
 	</ciManagement>
 
 	<properties>
-		<package-name>org.trndy</package-name>
-		<enforcer.skip>true</enforcer.skip>
+		<package-name>org.mastodon</package-name>
+<!-- 		<enforcer.skip>true</enforcer.skip> -->
 		<license.licenseName>not licensed yet</license.licenseName>
 		<license.projectName>mastodon-tracking</license.projectName>
 		<license.organizationName>Mastodon authors</license.organizationName>
