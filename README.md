@@ -1,4 +1,4 @@
-[![](https://travis-ci.org/TrNdy/mastodon-selection-creator.svg?branch=master)](https://travis-ci.org/TrNdy/mastodon-selection-creator)
+[![](https://travis-ci.com/mastodon-sc/mastodon-selection-creator.svg?branch=master)](https://travis-ci.com/mastodon-sc/mastodon-selection-creator)
 
 # mastodon-selection-creator
 A selection creator for Mastodon, as a Mastodon plugin.
