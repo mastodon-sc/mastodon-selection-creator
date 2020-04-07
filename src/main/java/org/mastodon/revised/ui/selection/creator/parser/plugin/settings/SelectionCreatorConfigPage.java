@@ -8,7 +8,7 @@ import org.mastodon.app.ui.settings.ModificationListener;
 import org.mastodon.app.ui.settings.SelectAndEditProfileSettingsPage;
 import org.mastodon.app.ui.settings.style.StyleProfile;
 import org.mastodon.app.ui.settings.style.StyleProfileManager;
-import org.mastodon.util.Listeners;
+import org.scijava.listeners.Listeners;
 
 public class SelectionCreatorConfigPage extends SelectAndEditProfileSettingsPage< StyleProfile< SelectionCreatorSettings > >
 {
