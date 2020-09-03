@@ -22,10 +22,8 @@ import org.mastodon.graph.TestSimpleVertex;
 import org.mastodon.graph.Vertex;
 import org.mastodon.graph.algorithm.traversal.DepthFirstSearch;
 import org.mastodon.graph.algorithm.traversal.GraphSearch.SearchDirection;
-import org.mastodon.mamut.selectioncreator.evaluation.SelectionMorpher;
-import org.mastodon.mamut.selectioncreator.evaluation.SelectionVariable;
-import org.mastodon.mamut.selectioncreator.evaluation.SelectionMorpher.Morpher;
 import org.mastodon.graph.algorithm.traversal.SearchListener;
+import org.mastodon.mamut.selectioncreator.evaluation.SelectionMorpher.Morpher;
 
 public class SelectionMorpherTest
 {
