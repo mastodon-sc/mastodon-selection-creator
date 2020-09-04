@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Objects;
 
 import org.mastodon.app.ui.settings.style.Style;
-import org.mastodon.util.Listeners;
+import org.scijava.listeners.Listeners;
 
 public class SelectionCreatorSettings implements Style< SelectionCreatorSettings >
 {
