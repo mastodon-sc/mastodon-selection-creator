@@ -3,17 +3,15 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<groupId>org.scijava</groupId>
-		<artifactId>pom-scijava</artifactId>
-		<version>28.0.0</version>
-		<relativePath />
+		<groupId>org.mastodon</groupId>
+		<artifactId>pom-mastodon</artifactId>
+		<version>1.0.0-beta-1-SNAPSHOT</version>
 	</parent>
 
-	<groupId>org.mastodon</groupId>
 	<artifactId>mastodon-selection-creator</artifactId>
 	<version>0.0.2-SNAPSHOT</version>
 
-	<name>Mastodon selection creator</name>
+	<name>Mastodon Selection Creator</name>
 	<description>A selection creator UI for Mastodon, as a Mastodon plugin.</description>
 	<url>https://github.com/mastodon-sc/mastodon-selection-creator</url>
 	<inceptionYear>2018</inceptionYear>
@@ -32,9 +30,8 @@
 
 		<!-- Mastodon deps -->
 		<dependency>
-			<groupId>org.mastodon</groupId>
+			<groupId>${mastodon.group}</groupId>
 			<artifactId>mastodon</artifactId>
-			<version>1.0.0-beta-16</version>
 		</dependency>
 
 		<!-- SciJava dependencies -->
