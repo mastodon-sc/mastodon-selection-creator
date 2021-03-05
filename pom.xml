@@ -5,9 +5,10 @@
 	<parent>
 		<groupId>org.scijava</groupId>
 		<artifactId>pom-scijava</artifactId>
-		<version>29.2.1</version>
+		<version>30.0.0</version>
 	</parent>
 
+	<groupId>org.mastodon</groupId>
 	<artifactId>mastodon-selection-creator</artifactId>
 	<version>0.0.2-SNAPSHOT</version>
 
@@ -80,7 +81,7 @@
 		<license.organizationName>Mastodon authors</license.organizationName>
 		<license.copyrightOwners>Tobias Pietzsch, Jean-Yves Tinevez</license.copyrightOwners>
 		
-		<mastodon.version>1.0.0-beta-17-SNAPSHOT</mastodon.version>
+		<mastodon.version>1.0.0-beta-18-SNAPSHOT</mastodon.version>
 
 		<!-- NB: Deploy releases to the SciJava Maven repository. -->
 		<releaseProfiles>deploy-to-scijava</releaseProfiles>
