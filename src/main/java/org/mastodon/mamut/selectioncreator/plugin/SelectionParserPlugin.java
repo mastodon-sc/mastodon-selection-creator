@@ -136,8 +136,6 @@ public class SelectionParserPlugin implements MamutPlugin
 
 		dialog = new JDialog( ( Frame ) null, "Mastodon selection creator" );
 		dialog.setIconImage( MastodonIcons.MASTODON_ICON_MEDIUM.getImage() );
-		dialog.setLocationByPlatform( true );
-		dialog.setLocationRelativeTo( null );
 		dialog.getContentPane().add( settings, BorderLayout.CENTER );
 		settings.onOk( () -> dialog.setVisible( false ) );
 		settings.onCancel( () -> dialog.setVisible( false ) );
@@ -152,7 +150,8 @@ public class SelectionParserPlugin implements MamutPlugin
 			}
 		} );
 		dialog.pack();
-
+		dialog.setLocationByPlatform( true );
+		dialog.setLocationRelativeTo( null );
 	}
 
 	private final AbstractNamedAction toggleSelectionCreatorWindowVisibility =
