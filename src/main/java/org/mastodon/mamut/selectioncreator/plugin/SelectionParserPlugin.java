@@ -14,6 +14,7 @@ import java.util.function.Function;
 import javax.swing.JDialog;
 import javax.swing.WindowConstants;
 
+import org.mastodon.app.MastodonIcons;
 import org.mastodon.app.ui.ViewMenuBuilder.MenuItem;
 import org.mastodon.app.ui.settings.SettingsPanel;
 import org.mastodon.feature.FeatureModel;
@@ -134,6 +135,9 @@ public class SelectionParserPlugin implements MamutPlugin
 		settings.addPage( page );
 
 		dialog = new JDialog( ( Frame ) null, "Mastodon selection creator" );
+		dialog.setIconImage( MastodonIcons.MASTODON_ICON_MEDIUM.getImage() );
+		dialog.setLocationByPlatform( true );
+		dialog.setLocationRelativeTo( null );
 		dialog.getContentPane().add( settings, BorderLayout.CENTER );
 		settings.onOk( () -> dialog.setVisible( false ) );
 		settings.onCancel( () -> dialog.setVisible( false ) );
