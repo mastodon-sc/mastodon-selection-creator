@@ -41,6 +41,11 @@
 			<groupId>org.scijava</groupId>
 			<artifactId>parsington</artifactId>
 		</dependency>
+		
+		<dependency>
+			<groupId>sc.fiji</groupId>
+			<artifactId>bigdataviewer-core</artifactId>
+		</dependency>
 
 		<!-- Test dependencies -->
 		<dependency>
@@ -82,6 +87,7 @@
 		<license.copyrightOwners>Tobias Pietzsch, Jean-Yves Tinevez</license.copyrightOwners>
 		
 		<mastodon.version>1.0.0-beta-18-SNAPSHOT</mastodon.version>
+		<bigdataviewer-core.version>10.2.0</bigdataviewer-core.version>
 
 		<!-- NB: Deploy releases to the SciJava Maven repository. -->
 		<releaseProfiles>deploy-to-scijava</releaseProfiles>
