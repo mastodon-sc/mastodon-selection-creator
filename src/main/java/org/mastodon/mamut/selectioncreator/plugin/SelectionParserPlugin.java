@@ -135,7 +135,7 @@ public class SelectionParserPlugin implements MamutPlugin
 		settings.addPage( page );
 
 		dialog = new JDialog( ( Frame ) null, "Mastodon selection creator" );
-		dialog.setIconImage( MastodonIcons.MASTODON_ICON_MEDIUM.getImage() );
+		dialog.setIconImages( MastodonIcons.MASTODON_ICON );
 		dialog.getContentPane().add( settings, BorderLayout.CENTER );
 		settings.onOk( () -> dialog.setVisible( false ) );
 		settings.onCancel( () -> dialog.setVisible( false ) );
