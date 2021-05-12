@@ -81,12 +81,12 @@
 	<properties>
 		<package-name>org.mastodon</package-name>
 <!-- 		<enforcer.skip>true</enforcer.skip> -->
-		<license.licenseName>not licensed yet</license.licenseName>
+		<license.licenseName>bsd_2</license.licenseName>
 		<license.projectName>mastodon-tracking</license.projectName>
 		<license.organizationName>Mastodon authors</license.organizationName>
 		<license.copyrightOwners>Tobias Pietzsch, Jean-Yves Tinevez</license.copyrightOwners>
 		
-		<mastodon.version>1.0.0-beta-18-SNAPSHOT</mastodon.version>
+		<mastodon.version>1.0.0-beta-18</mastodon.version>
 		<bigdataviewer-core.version>10.2.0</bigdataviewer-core.version>
 
 		<!-- NB: Deploy releases to the SciJava Maven repository. -->
