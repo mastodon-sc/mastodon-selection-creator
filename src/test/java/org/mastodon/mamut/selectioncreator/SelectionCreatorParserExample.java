@@ -18,7 +18,7 @@ import org.mastodon.graph.object.ObjectGraph;
 import org.mastodon.graph.object.ObjectVertex;
 import org.mastodon.mamut.WindowManager;
 import org.mastodon.mamut.feature.MamutFeatureComputerService;
-import org.mastodon.mamut.feature.SpotGaussFilteredIntensityFeature;
+import org.mastodon.mamut.feature.SpotCenterIntensityFeature;
 import org.mastodon.mamut.model.Link;
 import org.mastodon.mamut.model.Model;
 import org.mastodon.mamut.model.ModelGraph;
@@ -76,7 +76,7 @@ public class SelectionCreatorParserExample
 		final MamutFeatureComputerService service = context.getService( MamutFeatureComputerService.class );
 		final Collection< FeatureSpec< ?, ? > > featureComputers = service.getFeatureSpecs();
 		final Set< FeatureSpec< ?, ? > > fcs = featureComputers.stream()
-				.filter( ( mfc ) -> mfc.getKey() != SpotGaussFilteredIntensityFeature.KEY )
+				.filter( ( mfc ) -> mfc.getKey() != SpotCenterIntensityFeature.KEY )
 				.collect( Collectors.toSet() );
 		final Map< FeatureSpec< ?, ? >, Feature< ? > > map = service.compute( fcs );
 		featureModel.pauseListeners();
