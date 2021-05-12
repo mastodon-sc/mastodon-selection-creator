@@ -7,7 +7,8 @@ Utility to create a selection model from parsing expressions, based on Curtis Ru
 Expression are strings where a small language can be used to combine
 conditions and filters on vertices and edges. 
 
-Check this for documentation and explanation fo the syntax: ![the help file](src/main/resources/org/mastodon/revised/ui/selection/creator/parser/plugin/settings/Help.md).
+Check this for documentation and explanation fo the syntax: ![the help file](src/main/resources/org/mastodon/mamut/selectioncreator/plugin/settings/Help.md).
+
 
 Examples:
 --------
