@@ -1,4 +1,4 @@
-[![](https://travis-ci.com/mastodon-sc/mastodon-selection-creator.svg?branch=master)](https://travis-ci.com/mastodon-sc/mastodon-selection-creator)
+[![](https://github.com/mastodon-sc/mastodon-selection-creator/actions/workflows/build-main.yml/badge.svg)](https://github.com/mastodon-sc/mastodon-selection-creator/actions/workflows/build-main.yml)
 
 # mastodon-selection-creator
 A selection creator for Mastodon, as a Mastodon plugin.
