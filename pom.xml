@@ -64,7 +64,7 @@
 	</mailingLists>
 
 	<scm>
-		<connection>scm:git:git:github.com/mastodon-sc/mastodon-selection-creator</connection>
+		<connection>scm:git:https:github.com/mastodon-sc/mastodon-selection-creator</connection>
 		<developerConnection>scm:git:git@github.com:mastodon-sc/mastodon-selection-creator</developerConnection>
 		<tag>HEAD</tag>
 		<url>https://github.com/mastodon-sc/mastodon-selection-creator</url>
@@ -74,8 +74,8 @@
 		<url>https://github.com/mastodon-sc/mastodon-selection-creator/issues</url>
 	</issueManagement>
 	<ciManagement>
-		<system>Travis CI</system>
-		<url>https://travis-ci.com/mastodon-sc/mastodon-selection-creator</url>
+		<system>GitHub Actions</system>
+		<url>https://github.com/mastodon-sc/mastodon-selection-creator/actions</url>
 	</ciManagement>
 
 	<properties>
@@ -89,7 +89,7 @@
 		<mastodon.version>1.0.0-beta-22-SNAPSHOT</mastodon.version>
 
 		<!-- NB: Deploy releases to the SciJava Maven repository. -->
-		<releaseProfiles>deploy-to-scijava</releaseProfiles>
+		<releaseProfiles>sign,deploy-to-scijava</releaseProfiles>
 	</properties>
 
 	<developers>
