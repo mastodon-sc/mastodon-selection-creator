@@ -28,26 +28,18 @@
  */
 package org.mastodon.mamut.selectioncreator.plugin;
 
-import java.awt.BorderLayout;
-import java.awt.Frame;
 import java.awt.event.ActionEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
-import javax.swing.JDialog;
-import javax.swing.WindowConstants;
-
-import org.mastodon.app.MastodonIcons;
 import org.mastodon.app.ui.ViewMenuBuilder.MenuItem;
-import org.mastodon.app.ui.settings.SettingsPanel;
 import org.mastodon.feature.FeatureModel;
 import org.mastodon.graph.GraphIdBimap;
 import org.mastodon.mamut.MamutMenuBuilder;
+import org.mastodon.mamut.PreferencesDialog;
 import org.mastodon.mamut.model.Link;
 import org.mastodon.mamut.model.Model;
 import org.mastodon.mamut.model.ModelGraph;
@@ -78,9 +70,11 @@ public class SelectionParserPlugin implements MamutPlugin
 
 	private static Map< String, String > menuTexts = new HashMap<>();
 
-	private JDialog dialog;
-
 	private SelectionParser< Spot, Link > selectionParser;
+
+	private MamutPluginAppModel appModel;
+
+	private SelectionCreatorConfigPage page;
 
 	static
 	{
@@ -138,6 +132,8 @@ public class SelectionParserPlugin implements MamutPlugin
 	@Override
 	public void setAppPluginModel( final MamutPluginAppModel appModel )
 	{
+		this.appModel = appModel;
+
 		final Model model = appModel.getAppModel().getModel();
 		final ModelGraph graph = model.getGraph();
 		final GraphIdBimap< Spot, Link > graphIdBimap = model.getGraphIdBimap();
@@ -156,30 +152,11 @@ public class SelectionParserPlugin implements MamutPlugin
 		};
 
 		final SelectionCreatorSettingsManager styleManager = new SelectionCreatorSettingsManager();
-		final SelectionCreatorConfigPage page = new SelectionCreatorConfigPage(
-				"Selection creator parser", styleManager, evaluator );
+		page = new SelectionCreatorConfigPage( "Selection creator parser", styleManager, evaluator );
 		page.apply();
-		final SettingsPanel settings = new SettingsPanel();
+
+		final PreferencesDialog settings = appModel.getWindowManager().getPreferencesDialog();
 		settings.addPage( page );
-
-		dialog = new JDialog( ( Frame ) null, "Mastodon selection creator" );
-		dialog.setIconImages( MastodonIcons.MASTODON_ICON );
-		dialog.getContentPane().add( settings, BorderLayout.CENTER );
-		settings.onOk( () -> dialog.setVisible( false ) );
-		settings.onCancel( () -> dialog.setVisible( false ) );
-
-		dialog.setDefaultCloseOperation( WindowConstants.DO_NOTHING_ON_CLOSE );
-		dialog.addWindowListener( new WindowAdapter()
-		{
-			@Override
-			public void windowClosing( final WindowEvent e )
-			{
-				settings.cancel();
-			}
-		} );
-		dialog.pack();
-		dialog.setLocationByPlatform( true );
-		dialog.setLocationRelativeTo( null );
 	}
 
 	private final AbstractNamedAction toggleSelectionCreatorWindowVisibility =
@@ -191,9 +168,15 @@ public class SelectionParserPlugin implements MamutPlugin
 				@Override
 				public void actionPerformed( final ActionEvent e )
 				{
+					if ( appModel == null )
+						return;
+
+					final PreferencesDialog dialog = appModel.getWindowManager().getPreferencesDialog();
 					if ( null == dialog )
 						return;
-					dialog.setVisible( !dialog.isVisible() );
+
+					dialog.showPage( page.getTreePath() );
+					dialog.setVisible( true );
 				}
 			};
 }
