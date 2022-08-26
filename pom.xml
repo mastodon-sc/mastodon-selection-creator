@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.scijava</groupId>
 		<artifactId>pom-scijava</artifactId>
-		<version>30.0.0</version>
+		<version>32.0.0-beta-5</version>
 	</parent>
 
 	<groupId>org.mastodon</groupId>
@@ -82,12 +82,11 @@
 		<package-name>org.mastodon</package-name>
 <!-- 		<enforcer.skip>true</enforcer.skip> -->
 		<license.licenseName>bsd_2</license.licenseName>
-		<license.projectName>mastodon-tracking</license.projectName>
+		<license.projectName>mastodon-selection-creator</license.projectName>
 		<license.organizationName>Mastodon authors</license.organizationName>
 		<license.copyrightOwners>Tobias Pietzsch, Jean-Yves Tinevez</license.copyrightOwners>
 		
-		<mastodon.version>1.0.0-beta-19</mastodon.version>
-		<bigdataviewer-core.version>10.2.0</bigdataviewer-core.version>
+		<mastodon.version>1.0.0-beta-22-SNAPSHOT</mastodon.version>
 
 		<!-- NB: Deploy releases to the SciJava Maven repository. -->
 		<releaseProfiles>deploy-to-scijava</releaseProfiles>
