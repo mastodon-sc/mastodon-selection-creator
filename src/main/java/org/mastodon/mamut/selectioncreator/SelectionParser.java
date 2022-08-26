@@ -45,7 +45,7 @@ import org.scijava.parsington.SyntaxTree;
  * <p>
  * Expression are strings where a small language can be used to combine
  * conditions and filters on vertices and edges. Examples:
-
+ * 
  * <table summary="Selection parser examples" border="1">
  * <tr>
  * <th>Expression</th>
@@ -253,30 +253,39 @@ public class SelectionParser< V extends Vertex< E >, E extends Edge< V > >
 	public boolean parse( final String expression )
 	{
 		errorMessage = null;
-		final SyntaxTree tree = new ExpressionParser().parseTree( expression );
-		final SelectionEvaluator< V, E > evaluator = new SelectionEvaluator<>( graph, graphIdBimap, tagSetModel, featureModel, selectionModel );
 		try
 		{
-			final Object result = evaluator.evaluate( tree );
-			if ( result instanceof SelectionVariable )
+			final SyntaxTree tree = new ExpressionParser().parseTree( expression );
+			final SelectionEvaluator< V, E > evaluator = new SelectionEvaluator<>( graph, graphIdBimap, tagSetModel, featureModel, selectionModel );
+			try
 			{
-				final SelectionVariable sv = ( SelectionVariable ) result;
-				sv.toSelectionModel( selectionModel, graphIdBimap );
-				return true;
+
+				final Object result = evaluator.evaluate( tree );
+				if ( result instanceof SelectionVariable )
+				{
+					final SelectionVariable sv = ( SelectionVariable ) result;
+					sv.toSelectionModel( selectionModel, graphIdBimap );
+					return true;
+				}
+				else
+				{
+					errorMessage = "Got unexpected result: " + result;
+					return false;
+				}
 			}
-			else
+			catch ( final IllegalArgumentException iae )
 			{
-				errorMessage = "Got unexpected result: " + result;
+				final String err = evaluator.getErrorMessage();
+				if ( err != null )
+					errorMessage = "Incorrect syntax: " + err;
+				else
+					errorMessage = iae.getMessage();
 				return false;
 			}
 		}
 		catch ( final IllegalArgumentException iae )
 		{
-			final String err = evaluator.getErrorMessage();
-			if ( err != null )
-				errorMessage = "Incorrect syntax: " + err;
-			else
-				errorMessage = iae.getMessage();
+			errorMessage = iae.getMessage();
 			return false;
 		}
 	}
