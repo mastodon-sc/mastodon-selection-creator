@@ -39,9 +39,10 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.WindowConstants;
 
-import org.mastodon.app.ui.settings.SettingsPanel;
 import org.mastodon.mamut.selectioncreator.plugin.settings.SelectionCreatorConfigPage;
 import org.mastodon.mamut.selectioncreator.plugin.settings.SelectionCreatorSettingsManager;
+
+import bdv.ui.settings.SettingsPanel;
 
 public class SelectionCreatorConfigPageExample
 {

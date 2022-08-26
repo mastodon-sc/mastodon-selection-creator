@@ -39,8 +39,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.mastodon.app.ui.settings.style.AbstractStyleManager;
 import org.yaml.snakeyaml.Yaml;
+
+import bdv.ui.settings.style.AbstractStyleManager;
 
 public class SelectionCreatorSettingsManager extends AbstractStyleManager< SelectionCreatorSettingsManager, SelectionCreatorSettings >
 {
@@ -59,9 +60,9 @@ public class SelectionCreatorSettingsManager extends AbstractStyleManager< Selec
 	}
 
 	@Override
-	public synchronized void setDefaultStyle( final SelectionCreatorSettings settings )
+	public synchronized void setSelectedStyle( final SelectionCreatorSettings settings )
 	{
-		defaultStyle = settings;
+		selectedStyle = settings;
 	}
 
 	public void loadStyles()
@@ -98,7 +99,7 @@ public class SelectionCreatorSettingsManager extends AbstractStyleManager< Selec
 					}
 				}
 			}
-			setDefaultStyle( styleForName( defaultStyleName ).orElseGet( () -> builtinStyles.get( 0 ) ) );
+			setSelectedStyle( styleForName( defaultStyleName ).orElseGet( () -> builtinStyles.get( 0 ) ) );
 		}
 		catch ( final FileNotFoundException e )
 		{
@@ -126,7 +127,7 @@ public class SelectionCreatorSettingsManager extends AbstractStyleManager< Selec
 			final FileWriter output = new FileWriter( filename );
 			final Yaml yaml = SelectionCreatorSettingsIO.createYaml();
 			final ArrayList< Object > objects = new ArrayList<>();
-			objects.add( defaultStyle.getName() );
+			objects.add( selectedStyle.getName() );
 			objects.addAll( userStyles );
 			yaml.dumpAll( objects.iterator(), output );
 			output.close();

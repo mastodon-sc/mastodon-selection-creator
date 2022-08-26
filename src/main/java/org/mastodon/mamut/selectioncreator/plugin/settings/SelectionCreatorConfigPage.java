@@ -32,11 +32,12 @@ import java.util.function.Function;
 
 import javax.swing.JPanel;
 
-import org.mastodon.app.ui.settings.ModificationListener;
-import org.mastodon.app.ui.settings.SelectAndEditProfileSettingsPage;
-import org.mastodon.app.ui.settings.style.StyleProfile;
-import org.mastodon.app.ui.settings.style.StyleProfileManager;
 import org.scijava.listeners.Listeners;
+
+import bdv.ui.settings.ModificationListener;
+import bdv.ui.settings.SelectAndEditProfileSettingsPage;
+import bdv.ui.settings.style.StyleProfile;
+import bdv.ui.settings.style.StyleProfileManager;
 
 public class SelectionCreatorConfigPage extends SelectAndEditProfileSettingsPage< StyleProfile< SelectionCreatorSettings > >
 {
@@ -59,7 +60,7 @@ public class SelectionCreatorConfigPage extends SelectAndEditProfileSettingsPage
 		super(
 				treePath,
 				new StyleProfileManager<>( selectionCreatorSettingsManager, new SelectionCreatorSettingsManager( false ) ),
-				new SelectionCreatorSettingsEditPanel( selectionCreatorSettingsManager.getDefaultStyle(), evaluator ) );
+				new SelectionCreatorSettingsEditPanel( selectionCreatorSettingsManager.getSelectedStyle(), evaluator ) );
 	}
 
 	static class SelectionCreatorSettingsEditPanel implements SelectionCreatorSettings.UpdateListener, SelectAndEditProfileSettingsPage.ProfileEditPanel< StyleProfile< SelectionCreatorSettings > >
@@ -84,7 +85,7 @@ public class SelectionCreatorConfigPage extends SelectAndEditProfileSettingsPage
 		public void settingsChanged()
 		{
 			if ( trackModifications )
-				modificationListeners.list.forEach( ModificationListener::modified );
+				modificationListeners.list.forEach( ModificationListener::setModified );
 		}
 
 		@Override

@@ -58,13 +58,12 @@ import org.scijava.parsington.Operators;
 import org.scijava.parsington.SyntaxTree;
 import org.scijava.parsington.Tokens;
 import org.scijava.parsington.Variable;
-import org.scijava.parsington.eval.AbstractStackEvaluator;
-import org.scijava.parsington.eval.DefaultEvaluator;
+import org.scijava.parsington.eval.DefaultStackEvaluator;
 
-public class SelectionEvaluator< V extends Vertex< E >, E extends Edge< V > > extends AbstractStackEvaluator
+public class SelectionEvaluator< V extends Vertex< E >, E extends Edge< V > > extends DefaultStackEvaluator
 {
 
-	private final DefaultEvaluator defaultEvaluator;
+	private final DefaultStackEvaluator defaultEvaluator;
 
 	private final ReadOnlyGraph< V, E > graph;
 
@@ -87,7 +86,7 @@ public class SelectionEvaluator< V extends Vertex< E >, E extends Edge< V > > ex
 		this.tagSetModel = tagSetModel;
 		this.featureModel = featureModel;
 		this.selectionModel = selectionModel;
-		this.defaultEvaluator = new DefaultEvaluator();
+		this.defaultEvaluator = new DefaultStackEvaluator();
 		for ( final Morpher morpher : SelectionMorpher.Morpher.values() )
 			morpherMap.put( morpher.toString(), morpher );
 	}
@@ -204,7 +203,8 @@ public class SelectionEvaluator< V extends Vertex< E >, E extends Edge< V > > ex
 		return null;
 	}
 
-	private Object notEqual( final Object a, final Object b )
+	@Override
+	public Object notEqual( final Object a, final Object b )
 	{
 		if ( a instanceof FeatureVariable && b instanceof Number )
 			return ( (org.mastodon.mamut.selectioncreator.evaluation.FeatureVariable< ? > ) a ).notEqual( ( ( Number ) b ).doubleValue() );
@@ -232,7 +232,8 @@ public class SelectionEvaluator< V extends Vertex< E >, E extends Edge< V > > ex
 		return null;
 	}
 
-	private Object equal( final Object a, final Object b )
+	@Override
+	public Object equal( final Object a, final Object b )
 	{
 		if ( a instanceof FeatureVariable && b instanceof Number )
 			return ( (org.mastodon.mamut.selectioncreator.evaluation.FeatureVariable< ? > ) a ).equal( ( ( Number ) b ).doubleValue() );
@@ -260,7 +261,8 @@ public class SelectionEvaluator< V extends Vertex< E >, E extends Edge< V > > ex
 		return null;
 	}
 
-	private Object greaterThanOrEqual( final Object a, final Object b )
+	@Override
+	public Object greaterThanOrEqual( final Object a, final Object b )
 	{
 		if ( a instanceof FeatureVariable && b instanceof Number )
 			return ( (org.mastodon.mamut.selectioncreator.evaluation.FeatureVariable< ? > ) a ).greaterThanOrEqual( ( ( Number ) b ).doubleValue() );
@@ -271,7 +273,8 @@ public class SelectionEvaluator< V extends Vertex< E >, E extends Edge< V > > ex
 		return null;
 	}
 
-	private Object lessThanOrEqual( final Object a, final Object b )
+	@Override
+	public Object lessThanOrEqual( final Object a, final Object b )
 	{
 		if ( a instanceof FeatureVariable && b instanceof Number )
 			return ( (org.mastodon.mamut.selectioncreator.evaluation.FeatureVariable< ? > ) a ).lessThanOrEqual( ( ( Number ) b ).doubleValue() );
@@ -282,7 +285,8 @@ public class SelectionEvaluator< V extends Vertex< E >, E extends Edge< V > > ex
 		return null;
 	}
 
-	private Object greaterThan( final Object a, final Object b )
+	@Override
+	public Object greaterThan( final Object a, final Object b )
 	{
 		if ( a instanceof FeatureVariable && b instanceof Number )
 			return ( (org.mastodon.mamut.selectioncreator.evaluation.FeatureVariable< ? > ) a ).greaterThan( ( ( Number ) b ).doubleValue() );
@@ -293,7 +297,8 @@ public class SelectionEvaluator< V extends Vertex< E >, E extends Edge< V > > ex
 		return null;
 	}
 
-	private Object lessThan( final Object a, final Object b )
+	@Override
+	public Object lessThan( final Object a, final Object b )
 	{
 		if ( a instanceof FeatureVariable && b instanceof Number )
 			return ( (org.mastodon.mamut.selectioncreator.evaluation.FeatureVariable< ? > ) a ).lessThan( ( ( Number ) b ).doubleValue() );
@@ -304,7 +309,8 @@ public class SelectionEvaluator< V extends Vertex< E >, E extends Edge< V > > ex
 		return null;
 	}
 
-	private Object not( final Object a )
+	@Override
+	public Object not( final Object a )
 	{
 		if ( a instanceof TagSetVariable )
 			return ( ( TagSetVariable ) a ).unset();
@@ -313,7 +319,8 @@ public class SelectionEvaluator< V extends Vertex< E >, E extends Edge< V > > ex
 		return null;
 	}
 
-	private Object complement( final Object a )
+	@Override
+	public Object complement( final Object a )
 	{
 		if ( a instanceof TagSetVariable )
 			return ( ( TagSetVariable ) a ).set();
@@ -322,7 +329,8 @@ public class SelectionEvaluator< V extends Vertex< E >, E extends Edge< V > > ex
 		return null;
 	}
 
-	private Object sub( final Object a, final Object b )
+	@Override
+	public Object sub( final Object a, final Object b )
 	{
 		if ( a instanceof SelectionVariable && b instanceof SelectionVariable )
 		{
@@ -341,7 +349,8 @@ public class SelectionEvaluator< V extends Vertex< E >, E extends Edge< V > > ex
 		return val;
 	}
 
-	private Object add( final Object a, final Object b )
+	@Override
+	public Object add( final Object a, final Object b )
 	{
 		if ( a instanceof SelectionVariable && b instanceof SelectionVariable )
 		{
@@ -359,24 +368,20 @@ public class SelectionEvaluator< V extends Vertex< E >, E extends Edge< V > > ex
 		return val;
 	}
 
-	private Object neg( final Object a )
+	@Override
+	public Object neg( final Object a )
 	{
 		return defaultEvaluator.neg( a );
 	}
 
-	private Object pos( final Object a )
+	@Override
+	public Object pos( final Object a )
 	{
 		return defaultEvaluator.pos( a );
 	}
 
-	private Object parens( final Object[] args )
-	{
-		if ( args.length == 1 )
-			return args[ 0 ];
-		return Arrays.asList( args );
-	}
-
-	private Object function( final Object a, final Object b )
+	@Override
+	public Object function( final Object a, final Object b )
 	{
 		if ( Tokens.isVariable( a ) )
 		{
