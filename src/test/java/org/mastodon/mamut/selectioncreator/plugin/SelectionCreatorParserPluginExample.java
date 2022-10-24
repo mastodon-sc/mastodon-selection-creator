@@ -28,37 +28,38 @@
  */
 package org.mastodon.mamut.selectioncreator.plugin;
 
-import java.io.IOException;
 import java.util.Locale;
 
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
-import org.mastodon.mamut.MainWindow;
-import org.mastodon.mamut.WindowManager;
-import org.mastodon.mamut.project.MamutProject;
-import org.mastodon.mamut.project.MamutProjectIO;
+import org.mastodon.mamut.launcher.MastodonLauncherCommand;
 import org.scijava.Context;
-
-import mpicbg.spim.data.SpimDataException;
 
 public class SelectionCreatorParserPluginExample
 {
 
-	public static void main( final String[] args ) throws ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException, IOException, SpimDataException
+	public static void main( final String[] args ) throws Exception
 	{
+		setSystemLookAndFeelAndLocale();
+		final MastodonLauncherCommand launcher = new MastodonLauncherCommand();
+		try (Context context = new Context())
+		{
+			context.inject( launcher );
+			launcher.run();
+		}
+	}
 
-		UIManager.setLookAndFeel( UIManager.getSystemLookAndFeelClassName() );
+	private static final void setSystemLookAndFeelAndLocale()
+	{
 		Locale.setDefault( Locale.ROOT );
-		System.setProperty( "apple.laf.useScreenMenuBar", "true" );
-
-		final String projectPath = "../mastodon/samples/mamutproject.mastodon";
-		final MamutProject project = new MamutProjectIO().load( projectPath );
-
-		final Context context = new Context();
-		final WindowManager windowManager = new WindowManager( context );
-		final MainWindow mw = new MainWindow( windowManager );
-		windowManager.getProjectManager().open( project );
-		mw.setVisible( true );
+		try
+		{
+			UIManager.setLookAndFeel( UIManager.getSystemLookAndFeelClassName() );
+		}
+		catch ( ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e )
+		{
+			e.printStackTrace();
+		}
 	}
 }
