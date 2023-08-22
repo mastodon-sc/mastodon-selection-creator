@@ -38,23 +38,24 @@ import java.util.function.Function;
 import org.mastodon.app.ui.ViewMenuBuilder.MenuItem;
 import org.mastodon.feature.FeatureModel;
 import org.mastodon.graph.GraphIdBimap;
+import org.mastodon.mamut.KeyConfigScopes;
 import org.mastodon.mamut.MamutMenuBuilder;
 import org.mastodon.mamut.PreferencesDialog;
+import org.mastodon.mamut.ProjectModel;
 import org.mastodon.mamut.model.Link;
 import org.mastodon.mamut.model.Model;
 import org.mastodon.mamut.model.ModelGraph;
 import org.mastodon.mamut.model.Spot;
 import org.mastodon.mamut.plugin.MamutPlugin;
-import org.mastodon.mamut.plugin.MamutPluginAppModel;
 import org.mastodon.mamut.selectioncreator.SelectionParser;
 import org.mastodon.mamut.selectioncreator.plugin.settings.SelectionCreatorConfigPage;
 import org.mastodon.mamut.selectioncreator.plugin.settings.SelectionCreatorSettingsManager;
 import org.mastodon.model.SelectionModel;
 import org.mastodon.model.tag.TagSetModel;
-import org.mastodon.ui.keymap.CommandDescriptionProvider;
-import org.mastodon.ui.keymap.CommandDescriptions;
 import org.mastodon.ui.keymap.KeyConfigContexts;
 import org.scijava.plugin.Plugin;
+import org.scijava.ui.behaviour.io.gui.CommandDescriptionProvider;
+import org.scijava.ui.behaviour.io.gui.CommandDescriptions;
 import org.scijava.ui.behaviour.util.AbstractNamedAction;
 import org.scijava.ui.behaviour.util.Actions;
 
@@ -72,7 +73,7 @@ public class SelectionParserPlugin implements MamutPlugin
 
 	private SelectionParser< Spot, Link > selectionParser;
 
-	private MamutPluginAppModel appModel;
+	private ProjectModel appModel;
 
 	private SelectionCreatorConfigPage page;
 
@@ -89,7 +90,7 @@ public class SelectionParserPlugin implements MamutPlugin
 	{
 		public Descriptions()
 		{
-			super( KeyConfigContexts.MASTODON );
+			super( KeyConfigScopes.MAMUT, KeyConfigContexts.MASTODON );
 		}
 
 		@Override
@@ -130,16 +131,16 @@ public class SelectionParserPlugin implements MamutPlugin
 	}
 
 	@Override
-	public void setAppPluginModel( final MamutPluginAppModel appModel )
+	public void setAppPluginModel( final ProjectModel appModel )
 	{
 		this.appModel = appModel;
 
-		final Model model = appModel.getAppModel().getModel();
+		final Model model = appModel.getModel();
 		final ModelGraph graph = model.getGraph();
 		final GraphIdBimap< Spot, Link > graphIdBimap = model.getGraphIdBimap();
 		final TagSetModel< Spot, Link > tagSetModel = model.getTagSetModel();
 		final FeatureModel featureModel = model.getFeatureModel();
-		final SelectionModel< Spot, Link > selectionModel = appModel.getAppModel().getSelectionModel();
+		final SelectionModel< Spot, Link > selectionModel = appModel.getSelectionModel();
 		selectionParser = new SelectionParser<>( graph, graphIdBimap, tagSetModel, featureModel, selectionModel );
 
 		final Function< String, String > evaluator = ( expression ) -> {

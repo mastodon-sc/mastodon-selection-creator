@@ -28,7 +28,6 @@
  */
 package org.mastodon.mamut.selectioncreator.plugin.settings;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -39,6 +38,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.mastodon.io.IOUtils;
 import org.yaml.snakeyaml.Yaml;
 
 import bdv.ui.settings.style.AbstractStyleManager;
@@ -57,12 +57,6 @@ public class SelectionCreatorSettingsManager extends AbstractStyleManager< Selec
 	{
 		if ( loadStyles )
 			loadStyles();
-	}
-
-	@Override
-	public synchronized void setSelectedStyle( final SelectionCreatorSettings settings )
-	{
-		selectedStyle = settings;
 	}
 
 	public void loadStyles()
@@ -123,7 +117,7 @@ public class SelectionCreatorSettingsManager extends AbstractStyleManager< Selec
 	{
 		try
 		{
-			mkdirs( filename );
+			IOUtils.mkdirs( filename );
 			final FileWriter output = new FileWriter( filename );
 			final Yaml yaml = SelectionCreatorSettingsIO.createYaml();
 			final ArrayList< Object > objects = new ArrayList<>();
@@ -137,15 +131,4 @@ public class SelectionCreatorSettingsManager extends AbstractStyleManager< Selec
 			e.printStackTrace();
 		}
 	}
-
-	/*
-	 * STATIC UTILITIES
-	 */
-
-	private static boolean mkdirs( final String fileName )
-	{
-		final File dir = new File( fileName ).getParentFile();
-		return dir == null ? false : dir.mkdirs();
-	}
-
 }

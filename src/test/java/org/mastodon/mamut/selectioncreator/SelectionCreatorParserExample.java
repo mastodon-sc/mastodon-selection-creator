@@ -44,15 +44,14 @@ import org.mastodon.feature.FeatureSpec;
 import org.mastodon.graph.GraphIdBimap;
 import org.mastodon.graph.object.ObjectGraph;
 import org.mastodon.graph.object.ObjectVertex;
-import org.mastodon.mamut.WindowManager;
+import org.mastodon.mamut.ProjectModel;
 import org.mastodon.mamut.feature.MamutFeatureComputerService;
 import org.mastodon.mamut.feature.SpotCenterIntensityFeature;
+import org.mastodon.mamut.io.ProjectLoader;
 import org.mastodon.mamut.model.Link;
 import org.mastodon.mamut.model.Model;
 import org.mastodon.mamut.model.ModelGraph;
 import org.mastodon.mamut.model.Spot;
-import org.mastodon.mamut.project.MamutProject;
-import org.mastodon.mamut.project.MamutProjectIO;
 import org.mastodon.model.SelectionModel;
 import org.mastodon.model.tag.TagSetModel;
 import org.mastodon.model.tag.TagSetStructure;
@@ -69,11 +68,9 @@ public class SelectionCreatorParserExample
 	public static void main( final String[] args ) throws IOException, SpimDataException
 	{
 		final Context context = new Context();
-		final MamutProject project = new MamutProjectIO().load( "../mastodon/samples/mamutproject.mastodon" );
-		final WindowManager windowManager = new WindowManager( context );
-		windowManager.getProjectManager().open( project );
-		final Model model = windowManager.getAppModel().getModel();
-		final SelectionModel< Spot, Link > selectionModel = windowManager.getAppModel().getSelectionModel();
+		final ProjectModel projectModel = ProjectLoader.open( "../mastodon/samples/mamutproject.mastodon", context );
+		final Model model = projectModel.getModel();
+		final SelectionModel< Spot, Link > selectionModel = projectModel.getSelectionModel();
 
 		final ModelGraph graph = model.getGraph();
 		final GraphIdBimap< Spot, Link > graphIdBimap = model.getGraphIdBimap();
@@ -101,7 +98,7 @@ public class SelectionCreatorParserExample
 				tagSetModel.getEdgeTags().set( e, ran.nextBoolean() ? jyTag : tobiasTag );
 
 		// Compute feature values.
-		final MamutFeatureComputerService service = context.getService( MamutFeatureComputerService.class );
+		final MamutFeatureComputerService service = MamutFeatureComputerService.newInstance( context );
 		final Collection< FeatureSpec< ?, ? > > featureComputers = service.getFeatureSpecs();
 		final Set< FeatureSpec< ?, ? > > fcs = featureComputers.stream()
 				.filter( ( mfc ) -> mfc.getKey() != SpotCenterIntensityFeature.KEY )
