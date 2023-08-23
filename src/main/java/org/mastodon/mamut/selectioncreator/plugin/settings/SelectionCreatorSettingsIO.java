@@ -123,9 +123,9 @@ public class SelectionCreatorSettingsIO
 				final String name = ( String ) mapping.get( "name" );
 				final SelectionCreatorSettings s = SelectionCreatorSettings.EXAMPLES.get( 0 ).copy( name );
 
-				s.setName( ( String ) mapping.get( "name") );
-				s.setExpression( ( String ) mapping.get( "expression") );
-				s.setDescription( ( String ) mapping.get( "description") );
+				s.setName( getString( mapping, "name" ) );
+				s.setExpression( getString( mapping, "expression" ) );
+				s.setDescription( getString( mapping, "description" ) );
 
 				return s;
 			}
