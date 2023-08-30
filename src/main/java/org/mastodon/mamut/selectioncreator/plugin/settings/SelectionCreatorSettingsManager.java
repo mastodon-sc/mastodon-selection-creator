@@ -37,7 +37,8 @@ import org.yaml.snakeyaml.Yaml;
 public class SelectionCreatorSettingsManager extends AbstractStyleManagerYaml< SelectionCreatorSettingsManager, SelectionCreatorSettings >
 {
 
-	private static final String EXPRESSION_FILE = System.getProperty( "user.home" ) + "/.mastodon/selectioncreatorexpressions.yaml";
+	private static final String EXPRESSION_FILE = System.getProperty( "user.home" ) + "/.mastodon/plugins/selection-creator/selection-creator-expressions.yaml";
+	private static final String LEGACY_EXPRESSION_FILE = System.getProperty( "user.home" ) + "/.mastodon/selectioncreatorexpressions.yaml";
 
 	public SelectionCreatorSettingsManager()
 	{
@@ -53,6 +54,7 @@ public class SelectionCreatorSettingsManager extends AbstractStyleManagerYaml< S
 	public void loadStyles()
 	{
 		loadStyles( EXPRESSION_FILE );
+		handleLegacyFile( LEGACY_EXPRESSION_FILE );
 	}
 
 	@Override
