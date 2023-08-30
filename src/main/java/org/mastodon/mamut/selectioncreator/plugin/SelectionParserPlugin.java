@@ -153,7 +153,7 @@ public class SelectionParserPlugin implements MamutPlugin
 		};
 
 		final SelectionCreatorSettingsManager styleManager = new SelectionCreatorSettingsManager();
-		page = new SelectionCreatorConfigPage( "Selection creator parser", styleManager, evaluator );
+		page = new SelectionCreatorConfigPage( "Plugins > Selection creator parser", styleManager, evaluator );
 		page.apply();
 
 		final PreferencesDialog settings = appModel.getWindowManager().getPreferencesDialog();
