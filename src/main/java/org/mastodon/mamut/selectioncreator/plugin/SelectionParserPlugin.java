@@ -79,7 +79,7 @@ public class SelectionParserPlugin implements MamutPlugin
 
 	static
 	{
-		menuTexts.put( SHOW_SELECTION_CREATOR_WINDOW, "Selection Creator" );
+		menuTexts.put( SHOW_SELECTION_CREATOR_WINDOW, "Selection creator" );
 	}
 
 	/*
