@@ -10,7 +10,7 @@
 
 	<groupId>org.mastodon</groupId>
 	<artifactId>mastodon-selection-creator</artifactId>
-	<version>0.0.9-SNAPSHOT</version>
+	<version>0.0.10-SNAPSHOT</version>
 
 	<name>Mastodon Selection Creator</name>
 	<description>A selection creator UI for Mastodon, as a Mastodon plugin.</description>
